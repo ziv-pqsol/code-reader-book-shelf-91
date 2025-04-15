@@ -75,7 +75,7 @@ const LoginPage = () => {
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-500">
-            Credenciales de demo: usuario: <span className="font-medium">admin</span>, contraseña: <span className="font-medium">admin123</span>
+          <span className="font-medium">Nota:</span> Contacte al administrador para obtener sus credenciales de acceso.
           </p>
         </CardFooter>
       </Card>
