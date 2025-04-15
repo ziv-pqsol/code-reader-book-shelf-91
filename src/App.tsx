@@ -13,7 +13,7 @@ import StudentsPage from "./pages/StudentsPage";
 import BooksPage from "./pages/BooksPage";
 import StudentDetailPage from "./pages/StudentDetailPage";
 import BookDetailPage from "./pages/BookDetailPage";
-import ScannerPage from "./pages/ScannerPage";
+import SearchPage from "./pages/SearchPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import NotFound from "./pages/NotFound";
 
@@ -35,8 +35,8 @@ const App = () => (
               <Route path="/students/:id" element={<Layout><StudentDetailPage /></Layout>} />
               <Route path="/books" element={<Layout><BooksPage /></Layout>} />
               <Route path="/books/:id" element={<Layout><BookDetailPage /></Layout>} />
-              <Route path="/search" element={<Layout><ScannerPage /></Layout>} />
-              <Route path="/scanner" element={<Layout><ScannerPage /></Layout>} />
+              <Route path="/search" element={<Layout><SearchPage /></Layout>} />
+              <Route path="/scanner" element={<Navigate to="/search" replace />} />
               <Route path="/search-results" element={<Layout><SearchResultsPage /></Layout>} />
               
               <Route path="*" element={<NotFound />} />

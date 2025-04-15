@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,8 +29,10 @@ const StudentDetailPage = () => {
   const { getStudentById, getStudentBooks, returnBook, books, borrowBook } = useLibrary();
   const [tab, setTab] = useState('books');
   const [isAssignBookOpen, setIsAssignBookOpen] = useState(false);
+  const [isEditStudentOpen, setIsEditStudentOpen] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string>('');
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const student = getStudentById(id || '');
   const studentBooks = getStudentBooks(id || '');
@@ -111,7 +113,12 @@ const StudentDetailPage = () => {
               </div>
               
               <div className="mt-6 flex justify-center">
-                <Button variant="outline" className="w-full" size="sm">
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  size="sm"
+                  onClick={() => setIsEditStudentOpen(true)}
+                >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Student
                 </Button>
@@ -178,7 +185,13 @@ const StudentDetailPage = () => {
                                 <Button 
                                   variant="destructive"
                                   size="sm"
-                                  onClick={() => returnBook(book.id)}
+                                  onClick={() => {
+                                    returnBook(book.id);
+                                    toast({
+                                      title: "Book returned",
+                                      description: `${book.title} has been returned to the library`,
+                                    });
+                                  }}
                                 >
                                   Return Book
                                 </Button>
@@ -252,6 +265,24 @@ const StudentDetailPage = () => {
             </Button>
             <Button onClick={handleAssignBook}>
               Assign
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Student Dialog */}
+      <Dialog open={isEditStudentOpen} onOpenChange={setIsEditStudentOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Student</DialogTitle>
+            <DialogDescription>
+              This feature is not implemented in the demo version.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex justify-end mt-4">
+            <Button variant="outline" onClick={() => setIsEditStudentOpen(false)}>
+              Close
             </Button>
           </div>
         </DialogContent>

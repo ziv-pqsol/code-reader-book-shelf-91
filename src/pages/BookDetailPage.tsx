@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,11 +8,31 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, User, Edit, BookOpen } from 'lucide-react';
 import { genreColors } from '@/data/mockData';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useToast } from "@/hooks/use-toast";
 
 const BookDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { getBookById, returnBook, getStudentById, students, borrowBook } = useLibrary();
+  const { getBookById, returnBook, getStudentById, students, borrowBook, books } = useLibrary();
   const [tab, setTab] = useState('details');
+  const [isEditBookOpen, setIsEditBookOpen] = useState(false);
+  const [isAssignStudentOpen, setIsAssignStudentOpen] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState<string>('');
+  const { toast } = useToast();
+  const navigate = useNavigate();
   
   const book = getBookById(id || '');
   
@@ -32,6 +52,26 @@ const BookDetailPage = () => {
   
   // Here we'd fetch the real book cover; for the demo using the cover URL or placeholder
   const coverUrl = book.coverUrl || 'https://placehold.co/300x450/e5e7eb/a3a3a3?text=No+Cover';
+  
+  const handleAssignStudent = () => {
+    if (!selectedStudentId) {
+      toast({
+        title: "Error",
+        description: "Por favor selecciona un estudiante",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    borrowBook(book.id, selectedStudentId);
+    setIsAssignStudentOpen(false);
+    setSelectedStudentId('');
+    
+    toast({
+      title: "Libro asignado",
+      description: "El libro ha sido asignado correctamente al estudiante",
+    });
+  };
   
   return (
     <div className="space-y-6">
@@ -94,27 +134,16 @@ const BookDetailPage = () => {
               </div>
               
               <div className="mt-6">
-                <Button variant="outline" className="w-full" size="sm">
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  size="sm"
+                  onClick={() => setIsEditBookOpen(true)}
+                >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Book
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="font-semibold mb-4">QR Code</h3>
-              <div className="bg-white p-4 rounded-lg flex items-center justify-center">
-                <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?data=${book.code}&size=150x150`} 
-                  alt="Book QR Code"
-                  className="w-full max-w-[150px]" 
-                />
-              </div>
-              <p className="text-xs text-muted-foreground text-center mt-2">
-                This QR code contains the book's code: {book.code}
-              </p>
             </CardContent>
           </Card>
         </div>
@@ -141,7 +170,7 @@ const BookDetailPage = () => {
                           <p className="text-sm text-muted-foreground">This book is available for borrowing</p>
                         </div>
                       </div>
-                      <Button>Assign to Student</Button>
+                      <Button onClick={() => setIsAssignStudentOpen(true)}>Assign to Student</Button>
                     </div>
                     
                     <div>
@@ -152,7 +181,13 @@ const BookDetailPage = () => {
                             <Button 
                               variant="ghost" 
                               className="h-auto p-4 w-full justify-start"
-                              onClick={() => borrowBook(book.id, student.id)}
+                              onClick={() => {
+                                borrowBook(book.id, student.id);
+                                toast({
+                                  title: "Book assigned",
+                                  description: `${book.title} has been assigned to ${student.name}`,
+                                });
+                              }}
                             >
                               <User className="h-5 w-5 mr-2 flex-shrink-0" />
                               <div className="text-left flex-grow truncate">
@@ -166,7 +201,12 @@ const BookDetailPage = () => {
                       
                       {students.length > 4 && (
                         <div className="mt-2 text-center">
-                          <Button variant="link">View more students</Button>
+                          <Button 
+                            variant="link"
+                            onClick={() => setIsAssignStudentOpen(true)}
+                          >
+                            View more students
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -187,7 +227,13 @@ const BookDetailPage = () => {
                       </div>
                       <Button 
                         variant="destructive"
-                        onClick={() => returnBook(book.id)}
+                        onClick={() => {
+                          returnBook(book.id);
+                          toast({
+                            title: "Book returned",
+                            description: `${book.title} has been returned to the library`,
+                          });
+                        }}
                       >
                         Return Book
                       </Button>
@@ -229,11 +275,17 @@ const BookDetailPage = () => {
                       <div className="flex justify-center space-x-2">
                         <Button 
                           variant="outline"
-                          onClick={() => returnBook(book.id)}
+                          onClick={() => {
+                            returnBook(book.id);
+                            toast({
+                              title: "Book available",
+                              description: `${book.title} has been marked as available`,
+                            });
+                          }}
                         >
                           Mark as Available
                         </Button>
-                        <Button>Assign to Student</Button>
+                        <Button onClick={() => setIsAssignStudentOpen(true)}>Assign to Student</Button>
                       </div>
                     </div>
                   </CardContent>
@@ -252,6 +304,66 @@ const BookDetailPage = () => {
           </Tabs>
         </div>
       </div>
+      
+      {/* Assign Student Dialog */}
+      <Dialog open={isAssignStudentOpen} onOpenChange={setIsAssignStudentOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Assign Book to Student</DialogTitle>
+            <DialogDescription>
+              Select a student to assign this book to.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a student" />
+              </SelectTrigger>
+              <SelectContent>
+                {students.length > 0 ? (
+                  students.map((student) => (
+                    <SelectItem key={student.id} value={student.id}>
+                      {student.name} - {student.code}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="none" disabled>
+                    No students available
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsAssignStudentOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAssignStudent}>
+              Assign
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Book Dialog placeholder */}
+      <Dialog open={isEditBookOpen} onOpenChange={setIsEditBookOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Book</DialogTitle>
+            <DialogDescription>
+              This feature is not implemented in the demo version.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex justify-end mt-4">
+            <Button variant="outline" onClick={() => setIsEditBookOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

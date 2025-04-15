@@ -5,18 +5,30 @@ import { Search, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
   const { logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery) {
+    if (searchQuery.trim()) {
       navigate(`/search-results?q=${encodeURIComponent(searchQuery)}`);
       setSearchQuery('');
+      toast({
+        title: "Search initiated",
+        description: `Searching for: ${searchQuery}`,
+      });
+    } else {
+      toast({
+        title: "Empty search",
+        description: "Please enter a search term",
+        variant: "destructive",
+      });
     }
   };
 
@@ -58,7 +70,13 @@ const Navbar = () => {
           <div className="flex items-center">
             <Button 
               variant="outline" 
-              onClick={logout}
+              onClick={() => {
+                logout();
+                toast({
+                  title: "Logged out",
+                  description: "You have been logged out successfully",
+                });
+              }}
               className="text-sm"
             >
               Cerrar Sesión
