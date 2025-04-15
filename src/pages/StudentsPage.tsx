@@ -7,11 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import AddStudentDialog from '@/components/AddStudentDialog';
 
 const StudentsPage = () => {
   const { students, searchStudents, getStudentBooks } = useLibrary();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredStudents, setFilteredStudents] = useState(students);
+  const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -28,7 +30,7 @@ const StudentsPage = () => {
           <h1 className="text-3xl font-bold tracking-tight">Estudiantes</h1>
           <p className="text-muted-foreground">Administrar y ver información de estudiantes</p>
         </div>
-        <Button className="sm:self-end">
+        <Button className="sm:self-end" onClick={() => setIsAddStudentOpen(true)}>
           <UserPlus className="mr-2 h-4 w-4" />
           Añadir Estudiante
         </Button>
@@ -92,6 +94,11 @@ const StudentsPage = () => {
           </div>
         )}
       </div>
+
+      <AddStudentDialog
+        open={isAddStudentOpen}
+        onOpenChange={setIsAddStudentOpen}
+      />
     </div>
   );
 };

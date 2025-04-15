@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { genreColors } from '@/data/mockData';
+import AddBookDialog from '@/components/AddBookDialog';
 
 const BooksPage = () => {
   const { books, searchBooks } = useLibrary();
@@ -18,6 +19,7 @@ const BooksPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredBooks, setFilteredBooks] = useState(books);
   const [activeTab, setActiveTab] = useState(initialFilter);
+  const [isAddBookOpen, setIsAddBookOpen] = useState(false);
   
   useEffect(() => {
     let result = books;
@@ -48,7 +50,7 @@ const BooksPage = () => {
           <h1 className="text-3xl font-bold tracking-tight">Libros</h1>
           <p className="text-muted-foreground">Gestionar y ver información de libros</p>
         </div>
-        <Button className="sm:self-end">
+        <Button className="sm:self-end" onClick={() => setIsAddBookOpen(true)}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Añadir Libro
         </Button>
@@ -83,6 +85,11 @@ const BooksPage = () => {
           <BookGrid books={filteredBooks} />
         </TabsContent>
       </Tabs>
+
+      <AddBookDialog
+        open={isAddBookOpen}
+        onOpenChange={setIsAddBookOpen}
+      />
     </div>
   );
 };
