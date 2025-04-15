@@ -1,12 +1,12 @@
 
 import { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, BookOpen, PlusCircle, User, Edit } from 'lucide-react';
+import { ArrowLeft, BookOpen, PlusCircle, User, Clock } from 'lucide-react';
 import { genreColors } from '@/data/mockData';
 import { 
   Dialog,
@@ -23,19 +23,26 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 const StudentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { getStudentById, getStudentBooks, returnBook, books, borrowBook } = useLibrary();
+  const { getStudentById, getStudentBooks, returnBook, books, borrowBook, getStudentBorrowingHistory } = useLibrary();
   const [tab, setTab] = useState('books');
   const [isAssignBookOpen, setIsAssignBookOpen] = useState(false);
-  const [isEditStudentOpen, setIsEditStudentOpen] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string>('');
   const { toast } = useToast();
-  const navigate = useNavigate();
   
   const student = getStudentById(id || '');
   const studentBooks = getStudentBooks(id || '');
+  const borrowingHistory = getStudentBorrowingHistory(id || '');
   
   // Filter only available books
   const availableBooks = books.filter(book => book.available);
@@ -110,18 +117,6 @@ const StudentDetailPage = () => {
                     <p className="font-medium">{studentBooks.length}</p>
                   </div>
                 </div>
-              </div>
-              
-              <div className="mt-6 flex justify-center">
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
-                  size="sm"
-                  onClick={() => setIsEditStudentOpen(true)}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Student
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -217,12 +212,61 @@ const StudentDetailPage = () => {
             </TabsContent>
             
             <TabsContent value="history" className="mt-4">
-              <div className="text-center py-12 border rounded-lg">
-                <h3 className="font-medium text-lg">Borrowing History</h3>
-                <p className="text-muted-foreground">
-                  The borrowing history feature is not implemented in this demo version.
-                </p>
-              </div>
+              {borrowingHistory.length > 0 ? (
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-semibold">Borrowing History</h2>
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Book</TableHead>
+                        <TableHead>Code</TableHead>
+                        <TableHead>Genre</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {borrowingHistory.map((book) => (
+                        <TableRow key={book.id}>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center space-x-2">
+                              <BookOpen className="h-4 w-4 text-muted-foreground" />
+                              <div>
+                                <div>{book.title}</div>
+                                <div className="text-xs text-muted-foreground">{book.author}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>{book.code}</TableCell>
+                          <TableCell>
+                            <Badge 
+                              variant="outline"
+                              style={{ 
+                                backgroundColor: genreColors[book.genre as keyof typeof genreColors] || '#e5e7eb',
+                                borderColor: genreColors[book.genre as keyof typeof genreColors] || '#e5e7eb',
+                              }}
+                            >
+                              {book.genre}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={!book.available ? "secondary" : "outline"}>
+                              {!book.available ? "Borrowed" : "Returned"}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center py-12 border rounded-lg">
+                  <Clock className="h-12 w-12 text-muted-foreground opacity-20 mx-auto mb-2" />
+                  <h3 className="font-medium text-lg">No Borrowing History</h3>
+                  <p className="text-muted-foreground">This student hasn't borrowed any books yet.</p>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </div>
@@ -265,24 +309,6 @@ const StudentDetailPage = () => {
             </Button>
             <Button onClick={handleAssignBook}>
               Assign
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Student Dialog */}
-      <Dialog open={isEditStudentOpen} onOpenChange={setIsEditStudentOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Edit Student</DialogTitle>
-            <DialogDescription>
-              This feature is not implemented in the demo version.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="flex justify-end mt-4">
-            <Button variant="outline" onClick={() => setIsEditStudentOpen(false)}>
-              Close
             </Button>
           </div>
         </DialogContent>
