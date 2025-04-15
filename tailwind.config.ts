@@ -61,6 +61,21 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				library: {
+					primary: '#9b87f5',
+					secondary: '#7E69AB',
+					tertiary: '#6E59A5',
+					dark: '#1A1F2C',
+					light: '#D6BCFA',
+				},
+				genre: {
+					fiction: '#E5DEFF',
+					nonfiction: '#D3E4FD',
+					science: '#F2FCE2',
+					history: '#FEF7CD',
+					arts: '#FFDEE2',
+					literature: '#FDE1D3',
 				}
 			},
 			borderRadius: {
