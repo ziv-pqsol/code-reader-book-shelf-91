@@ -34,9 +34,9 @@ const SearchResultsPage = () => {
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Search Results</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Resultados de Búsqueda</h1>
           <p className="text-muted-foreground">
-            {totalResults} {totalResults === 1 ? 'result' : 'results'} for "{query}"
+            {totalResults} {totalResults === 1 ? 'resultado' : 'resultados'} para "{query}"
           </p>
         </div>
       </div>
@@ -45,15 +45,15 @@ const SearchResultsPage = () => {
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="all" className="flex items-center gap-2">
             <Search className="h-4 w-4" />
-            All ({totalResults})
+            Todos ({totalResults})
           </TabsTrigger>
           <TabsTrigger value="books" className="flex items-center gap-2">
             <BookOpen className="h-4 w-4" />
-            Books ({matchedBooks.length})
+            Libros ({matchedBooks.length})
           </TabsTrigger>
           <TabsTrigger value="students" className="flex items-center gap-2">
             <User className="h-4 w-4" />
-            Students ({matchedStudents.length})
+            Estudiantes ({matchedStudents.length})
           </TabsTrigger>
         </TabsList>
         
@@ -61,22 +61,22 @@ const SearchResultsPage = () => {
           {totalResults === 0 ? (
             <div className="text-center py-12">
               <Search className="h-12 w-12 mx-auto text-muted-foreground opacity-20" />
-              <h2 className="mt-2 text-xl font-bold">No Results Found</h2>
-              <p className="text-muted-foreground">Try searching with different keywords</p>
+              <h2 className="mt-2 text-xl font-bold">No se encontraron resultados</h2>
+              <p className="text-muted-foreground">Intenta buscar con otras palabras clave</p>
             </div>
           ) : (
             <>
               {matchedStudents.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold">Students</h2>
+                    <h2 className="text-xl font-bold">Estudiantes</h2>
                     {matchedStudents.length > 2 && (
                       <Button 
                         variant="link" 
                         className="flex items-center"
                         onClick={() => setActiveTab('students')}
                       >
-                        View all {matchedStudents.length} students
+                        Ver todos los {matchedStudents.length} estudiantes
                       </Button>
                     )}
                   </div>
@@ -101,14 +101,14 @@ const SearchResultsPage = () => {
               {matchedBooks.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold">Books</h2>
+                    <h2 className="text-xl font-bold">Libros</h2>
                     {matchedBooks.length > 2 && (
                       <Button 
                         variant="link" 
                         className="flex items-center"
                         onClick={() => setActiveTab('books')}
                       >
-                        View all {matchedBooks.length} books
+                        Ver todos los {matchedBooks.length} libros
                       </Button>
                     )}
                   </div>
@@ -121,7 +121,7 @@ const SearchResultsPage = () => {
                             <div className="flex h-full">
                               <div 
                                 className="w-2/5 bg-cover bg-center" 
-                                style={{ backgroundImage: `url(${book.coverUrl || 'https://placehold.co/100x150/e5e7eb/a3a3a3?text=No+Cover'})` }}
+                                style={{ backgroundImage: `url(${book.coverUrl || 'https://placehold.co/100x150/e5e7eb/a3a3a3?text=Sin+Portada'})` }}
                               ></div>
                               <div className="w-3/5 p-4 flex flex-col">
                                 <div>
@@ -141,11 +141,11 @@ const SearchResultsPage = () => {
                                 <div className="mt-auto">
                                   {book.available ? (
                                     <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                      Available
+                                      Disponible
                                     </Badge>
                                   ) : (
                                     <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                                      Borrowed
+                                      Prestado
                                     </Badge>
                                   )}
                                 </div>
@@ -172,7 +172,7 @@ const SearchResultsPage = () => {
                       <div className="flex h-full">
                         <div 
                           className="w-2/5 bg-cover bg-center" 
-                          style={{ backgroundImage: `url(${book.coverUrl || 'https://placehold.co/100x150/e5e7eb/a3a3a3?text=No+Cover'})` }}
+                          style={{ backgroundImage: `url(${book.coverUrl || 'https://placehold.co/100x150/e5e7eb/a3a3a3?text=Sin+Portada'})` }}
                         ></div>
                         <div className="w-3/5 p-4 flex flex-col">
                           <div>
@@ -192,11 +192,11 @@ const SearchResultsPage = () => {
                           <div className="mt-auto">
                             {book.available ? (
                               <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                Available
+                                Disponible
                               </Badge>
                             ) : (
                               <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                                Borrowed
+                                Prestado
                               </Badge>
                             )}
                           </div>
@@ -210,8 +210,8 @@ const SearchResultsPage = () => {
           ) : (
             <div className="text-center py-12">
               <BookOpen className="h-12 w-12 mx-auto text-muted-foreground opacity-20" />
-              <h2 className="mt-2 text-xl font-bold">No Books Found</h2>
-              <p className="text-muted-foreground">Try searching with different keywords</p>
+              <h2 className="mt-2 text-xl font-bold">No se encontraron libros</h2>
+              <p className="text-muted-foreground">Intenta buscar con otras palabras clave</p>
             </div>
           )}
         </TabsContent>
@@ -236,8 +236,8 @@ const SearchResultsPage = () => {
           ) : (
             <div className="text-center py-12">
               <User className="h-12 w-12 mx-auto text-muted-foreground opacity-20" />
-              <h2 className="mt-2 text-xl font-bold">No Students Found</h2>
-              <p className="text-muted-foreground">Try searching with different keywords</p>
+              <h2 className="mt-2 text-xl font-bold">No se encontraron estudiantes</h2>
+              <p className="text-muted-foreground">Intenta buscar con otras palabras clave</p>
             </div>
           )}
         </TabsContent>

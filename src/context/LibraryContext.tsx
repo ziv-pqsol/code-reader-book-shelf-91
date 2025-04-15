@@ -1,7 +1,7 @@
-
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { mockBooks, mockStudents } from '../data/mockData';
 import { Book, Student } from '../types';
+import { useToast } from "@/hooks/use-toast";
 
 interface LibraryContextType {
   books: Book[];
@@ -19,6 +19,8 @@ interface LibraryContextType {
     borrowedBooks: number;
     mostBorrowedBooks: Book[];
   };
+  addBook: (book: Omit<Book, 'id'>) => void;
+  addStudent: (student: Omit<Student, 'id'>) => void;
 }
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined);
@@ -26,7 +28,7 @@ const LibraryContext = createContext<LibraryContextType | undefined>(undefined);
 export const useLibrary = () => {
   const context = useContext(LibraryContext);
   if (context === undefined) {
-    throw new Error('useLibrary must be used within a LibraryProvider');
+    throw new Error('useLibrary debe ser usado dentro de un LibraryProvider');
   }
   return context;
 };
@@ -38,6 +40,32 @@ interface LibraryProviderProps {
 export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) => {
   const [books, setBooks] = useState<Book[]>(mockBooks);
   const [students, setStudents] = useState<Student[]>(mockStudents);
+  const { toast } = useToast();
+
+  const addBook = (book: Omit<Book, 'id'>) => {
+    const newBook: Book = {
+      ...book,
+      id: `book-${Date.now()}`,
+      available: true
+    };
+    setBooks(prev => [...prev, newBook]);
+    toast({
+      title: "Libro añadido",
+      description: "El libro se ha añadido correctamente",
+    });
+  };
+
+  const addStudent = (student: Omit<Student, 'id'>) => {
+    const newStudent: Student = {
+      ...student,
+      id: `student-${Date.now()}`
+    };
+    setStudents(prev => [...prev, newStudent]);
+    toast({
+      title: "Estudiante añadido",
+      description: "El estudiante se ha añadido correctamente",
+    });
+  };
 
   const getBookById = (id: string): Book | undefined => {
     return books.find(book => book.id === id);
@@ -113,7 +141,6 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
     const availableBooks = books.filter(book => book.available).length;
     const borrowedBooks = totalBooks - availableBooks;
     
-    // Calculate most borrowed books (for demo we'll just return currently borrowed books)
     const mostBorrowedBooks = books.filter(book => !book.available).slice(0, 5);
     
     return {
@@ -137,6 +164,8 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
         returnBook,
         getStudentBooks,
         getBookStats,
+        addBook,
+        addStudent,
       }}
     >
       {children}

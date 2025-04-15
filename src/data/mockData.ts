@@ -1,4 +1,3 @@
-
 import { Student, Book, User, Genre } from '../types';
 
 export const mockStudents: Student[] = [
@@ -68,9 +67,9 @@ export const mockBooks: Book[] = [
   {
     id: '1',
     code: 'B12345',
-    title: 'To Kill a Mockingbird',
+    title: 'Matar un Ruiseñor',
     author: 'Harper Lee',
-    genre: 'literature',
+    genre: 'literatura',
     available: true,
     coverUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/4f/To_Kill_a_Mockingbird_%28first_edition_cover%29.jpg'
   },
@@ -79,7 +78,7 @@ export const mockBooks: Book[] = [
     code: 'B12346',
     title: '1984',
     author: 'George Orwell',
-    genre: 'fiction',
+    genre: 'ficción',
     available: false,
     borrowerId: '1',
     borrowerName: 'Emma Johnson',
@@ -89,27 +88,27 @@ export const mockBooks: Book[] = [
   {
     id: '3',
     code: 'B12347',
-    title: 'The Great Gatsby',
+    title: 'El Gran Gatsby',
     author: 'F. Scott Fitzgerald',
-    genre: 'literature',
+    genre: 'literatura',
     available: true,
     coverUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg'
   },
   {
     id: '4',
     code: 'B12348',
-    title: 'A Brief History of Time',
+    title: 'Una Breve Historia del Tiempo',
     author: 'Stephen Hawking',
-    genre: 'science',
+    genre: 'ciencia',
     available: true,
     coverUrl: 'https://upload.wikimedia.org/wikipedia/en/6/6e/A_brief_history_of_time.jpg'
   },
   {
     id: '5',
     code: 'B12349',
-    title: 'Pride and Prejudice',
+    title: 'Orgullo y Prejuicio',
     author: 'Jane Austen',
-    genre: 'literature',
+    genre: 'literatura',
     available: false,
     borrowerId: '5',
     borrowerName: 'Ava Davis',
@@ -119,18 +118,18 @@ export const mockBooks: Book[] = [
   {
     id: '6',
     code: 'B12350',
-    title: 'The Hobbit',
+    title: 'El Hobbit',
     author: 'J.R.R. Tolkien',
-    genre: 'fiction',
+    genre: 'ficción',
     available: true,
     coverUrl: 'https://upload.wikimedia.org/wikipedia/en/4/4a/TheHobbit_FirstEdition.jpg'
   },
   {
     id: '7',
     code: 'B12351',
-    title: 'The Origin of Species',
+    title: 'El Origen de las Especies',
     author: 'Charles Darwin',
-    genre: 'science',
+    genre: 'ciencia',
     available: false,
     borrowerId: '3',
     borrowerName: 'Olivia Brown',
@@ -140,27 +139,27 @@ export const mockBooks: Book[] = [
   {
     id: '8',
     code: 'B12352',
-    title: 'The Art of War',
+    title: 'El Arte de la Guerra',
     author: 'Sun Tzu',
-    genre: 'history',
+    genre: 'historia',
     available: true,
     coverUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e6/Lionel_Giles_The_Art_of_War.jpg'
   },
   {
     id: '9',
     code: 'B12353',
-    title: 'The Iliad',
+    title: 'La Ilíada',
     author: 'Homer',
-    genre: 'literature',
+    genre: 'literatura',
     available: true,
     coverUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Beginning_of_the_Iliad.jpg/800px-Beginning_of_the_Iliad.jpg'
   },
   {
     id: '10',
     code: 'B12354',
-    title: 'The Alchemist',
+    title: 'El Alquimista',
     author: 'Paulo Coelho',
-    genre: 'fiction',
+    genre: 'ficción',
     available: false,
     borrowerId: '7',
     borrowerName: 'William Anderson',
@@ -170,9 +169,9 @@ export const mockBooks: Book[] = [
   {
     id: '11',
     code: 'B12355',
-    title: 'Sapiens: A Brief History of Humankind',
+    title: 'Sapiens: Una Breve Historia de la Humanidad',
     author: 'Yuval Noah Harari',
-    genre: 'history',
+    genre: 'historia',
     available: true,
     coverUrl: 'https://upload.wikimedia.org/wikipedia/en/4/45/Sapiens_A_Brief_History_of_Humankind.jpg'
   },
@@ -181,25 +180,25 @@ export const mockBooks: Book[] = [
     code: 'B12356',
     title: 'Hamlet',
     author: 'William Shakespeare',
-    genre: 'literature',
+    genre: 'literatura',
     available: true,
     coverUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/6a/Edwin_Booth_Hamlet_1870.jpg'
   },
   {
     id: '13',
     code: 'B12357',
-    title: 'Thinking, Fast and Slow',
+    title: 'Pensar rápido, pensar despacio',
     author: 'Daniel Kahneman',
-    genre: 'science',
+    genre: 'ciencia',
     available: true,
     coverUrl: 'https://upload.wikimedia.org/wikipedia/en/c/c1/Thinking%2C_Fast_and_Slow.jpg'
   },
   {
     id: '14',
     code: 'B12358',
-    title: 'War and Peace',
+    title: 'Guerra y Paz',
     author: 'Leo Tolstoy',
-    genre: 'literature',
+    genre: 'literatura',
     available: false,
     borrowerId: '9',
     borrowerName: 'James Taylor',
@@ -209,9 +208,9 @@ export const mockBooks: Book[] = [
   {
     id: '15',
     code: 'B12359',
-    title: 'The Elements of Style',
+    title: 'Los elementos del estilo',
     author: 'William Strunk Jr.',
-    genre: 'arts',
+    genre: 'arte',
     available: true,
     coverUrl: 'https://upload.wikimedia.org/wikipedia/en/9/91/Elementsofstyle.jpg'
   }
@@ -223,10 +222,9 @@ export const mockUser: User = {
 };
 
 export const genreColors: Record<Genre, string> = {
-  fiction: '#E5DEFF',
-  nonfiction: '#D3E4FD',
-  science: '#F2FCE2',
-  history: '#FEF7CD',
-  arts: '#FFDEE2',
-  literature: '#FDE1D3',
+  ficción: '#E5DEFF',
+  ciencia: '#F2FCE2',
+  historia: '#FEF7CD',
+  arte: '#FFDEE2',
+  literatura: '#FDE1D3',
 };

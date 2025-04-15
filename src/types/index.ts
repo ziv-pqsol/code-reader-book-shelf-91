@@ -1,27 +1,32 @@
 
-export type Student = {
-  id: string;
-  name: string;
-  code: string;
-  grade: string;
-};
+export type Genre = 
+  | 'literatura' 
+  | 'ficción' 
+  | 'ciencia' 
+  | 'historia' 
+  | 'arte';
 
-export type Book = {
+export interface Book {
   id: string;
   code: string;
   title: string;
   author: string;
-  genre: string;
+  genre: Genre;
   available: boolean;
+  coverUrl?: string;
   borrowerId?: string;
   borrowerName?: string;
   borrowerCode?: string;
-  coverUrl?: string;
-};
+}
 
-export type User = {
+export interface Student {
+  id: string;
+  name: string;
+  code: string;
+  grade: string;
+}
+
+export interface User {
   username: string;
   password: string;
-};
-
-export type Genre = 'fiction' | 'nonfiction' | 'science' | 'history' | 'arts' | 'literature';
+}
