@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Search, Bell, Menu, X } from 'lucide-react';
+import { Search, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
@@ -55,23 +55,13 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative"
-              >
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500" />
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={logout}
-                className="text-sm"
-              >
-                Cerrar Sesión
-              </Button>
-            </div>
+            <Button 
+              variant="outline" 
+              onClick={logout}
+              className="text-sm"
+            >
+              Cerrar Sesión
+            </Button>
           </div>
         </div>
       </div>
