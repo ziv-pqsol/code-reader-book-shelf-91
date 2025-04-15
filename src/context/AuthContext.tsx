@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -33,6 +33,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Check for existing session
   useEffect(() => {
@@ -44,6 +45,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const parsedUser = JSON.parse(savedUser);
           setUser(parsedUser);
           setIsAuthenticated(true);
+        } else if (location.pathname !== '/login') {
+          // Only redirect if we're not already on the login page
+          navigate('/login');
         }
       } catch (error) {
         console.error('Error checking session:', error);
@@ -53,7 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
     
     checkSession();
-  }, []);
+  }, [navigate, location.pathname]);
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
@@ -87,6 +91,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         description: `Bienvenido, ${username}!`,
       });
       
+      navigate('/');
       return true;
       
     } catch (err) {
