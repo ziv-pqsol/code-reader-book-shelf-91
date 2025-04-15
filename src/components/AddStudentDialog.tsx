@@ -20,6 +20,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -35,6 +42,9 @@ const formSchema = z.object({
   }),
   code: z.string().min(1, {
     message: "El código del estudiante es obligatorio.",
+  }),
+  level: z.enum(["primaria", "secundaria"], {
+    required_error: "Selecciona el nivel educativo.",
   }),
   grade: z.string().min(1, {
     message: "El grado es obligatorio.",
@@ -53,12 +63,25 @@ const AddStudentDialog: React.FC<AddStudentDialogProps> = ({
     defaultValues: {
       name: "",
       code: "",
+      level: undefined,
       grade: "",
     },
   });
 
+  const getGradeOptions = (level: "primaria" | "secundaria") => {
+    if (level === "primaria") {
+      return Array.from({ length: 6 }, (_, i) => `${i + 1}°`);
+    }
+    return Array.from({ length: 5 }, (_, i) => `${i + 1}°`);
+  };
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    addStudent(values);
+    const gradeFormatted = `${values.grade} ${values.level}`;
+    addStudent({
+      name: values.name,
+      code: values.code,
+      grade: gradeFormatted,
+    });
     form.reset();
     onOpenChange(false);
     toast({
@@ -106,13 +129,46 @@ const AddStudentDialog: React.FC<AddStudentDialogProps> = ({
             />
             <FormField
               control={form.control}
+              name="level"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nivel</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona el nivel educativo" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="primaria">Primaria</SelectItem>
+                      <SelectItem value="secundaria">Secundaria</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="grade"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Grado/Curso</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 10A" {...field} />
-                  </FormControl>
+                  <FormLabel>Grado</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona el grado" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {form.watch("level") &&
+                        getGradeOptions(form.watch("level")).map((grade) => (
+                          <SelectItem key={grade} value={grade}>
+                            {grade}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
