@@ -26,7 +26,7 @@ const StudentsPage = () => {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Estudiantes</h1>
-          <p className="text-muted-foreground">Gestionar y ver información de estudiantes</p>
+          <p className="text-muted-foreground">Administrar y ver información de estudiantes</p>
         </div>
         <Button className="sm:self-end">
           <UserPlus className="mr-2 h-4 w-4" />

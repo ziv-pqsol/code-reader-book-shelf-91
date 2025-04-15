@@ -31,7 +31,7 @@ const LoginPage = () => {
           </div>
           <CardTitle className="text-2xl font-bold text-center">Biblioteca Escolar</CardTitle>
           <CardDescription className="text-center">
-            Ingrese sus credenciales para acceder al sistema de gestión de biblioteca
+            Ingrese sus credenciales para acceder al sistema
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -40,7 +40,7 @@ const LoginPage = () => {
               <Label htmlFor="username">Usuario</Label>
               <Input 
                 id="username"
-                placeholder="Usuario" 
+                placeholder="Ingrese su usuario" 
                 type="text" 
                 value={username} 
                 onChange={(e) => setUsername(e.target.value)} 
@@ -51,7 +51,7 @@ const LoginPage = () => {
               <Label htmlFor="password">Contraseña</Label>
               <Input 
                 id="password"
-                placeholder="Contraseña" 
+                placeholder="Ingrese su contraseña" 
                 type="password" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
