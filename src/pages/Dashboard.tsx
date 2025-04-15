@@ -11,7 +11,6 @@ const Dashboard = () => {
   const { totalBooks, availableBooks, borrowedBooks, mostBorrowedBooks } = getBookStats();
   const borrowedPercentage = Math.round((borrowedBooks / totalBooks) * 100);
   
-  // Get students with borrowed books
   const studentsWithBooks = students.filter(student => {
     return books.some(book => book.borrowerId === student.id);
   });
@@ -19,52 +18,52 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Library management system overview</p>
+        <h1 className="text-3xl font-bold tracking-tight">Panel Principal</h1>
+        <p className="text-muted-foreground">Vista general del sistema de biblioteca</p>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Books</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Libros</CardTitle>
             <Book className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalBooks}</div>
-            <p className="text-xs text-muted-foreground">Books in the library</p>
+            <p className="text-xs text-muted-foreground">Libros en la biblioteca</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Available Books</CardTitle>
+            <CardTitle className="text-sm font-medium">Libros Disponibles</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{availableBooks}</div>
-            <p className="text-xs text-muted-foreground">Books available for borrowing</p>
+            <p className="text-xs text-muted-foreground">Libros disponibles para préstamo</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Borrowed Books</CardTitle>
+            <CardTitle className="text-sm font-medium">Libros Prestados</CardTitle>
             <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{borrowedBooks}</div>
-            <p className="text-xs text-muted-foreground">Currently borrowed by students</p>
+            <p className="text-xs text-muted-foreground">Actualmente prestados a estudiantes</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Students</CardTitle>
+            <CardTitle className="text-sm font-medium">Estudiantes Activos</CardTitle>
             <BarChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{studentsWithBooks.length}</div>
-            <p className="text-xs text-muted-foreground">Students with borrowed books</p>
+            <p className="text-xs text-muted-foreground">Estudiantes con libros prestados</p>
           </CardContent>
         </Card>
       </div>
@@ -72,17 +71,17 @@ const Dashboard = () => {
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="col-span-1">
           <CardHeader>
-            <CardTitle>Book Borrowing Status</CardTitle>
+            <CardTitle>Estado de Préstamos</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    Borrowed vs Available
+                    Prestados vs Disponibles
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {borrowedBooks} out of {totalBooks} books are borrowed
+                    {borrowedBooks} de {totalBooks} libros están prestados
                   </p>
                 </div>
                 <div className="text-sm text-muted-foreground">{borrowedPercentage}%</div>
@@ -94,7 +93,7 @@ const Dashboard = () => {
         
         <Card className="col-span-1">
           <CardHeader>
-            <CardTitle>Currently Borrowed Books</CardTitle>
+            <CardTitle>Libros Actualmente Prestados</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -103,18 +102,18 @@ const Dashboard = () => {
                   <div key={book.id} className="flex items-center">
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{book.title}</p>
-                      <p className="truncate text-sm text-muted-foreground">Borrowed by {book.borrowerName}</p>
+                      <p className="truncate text-sm text-muted-foreground">Prestado a {book.borrowerName}</p>
                     </div>
                     <Link 
                       to={`/books/${book.id}`}
                       className="ml-2 text-sm text-library-primary hover:underline"
                     >
-                      View
+                      Ver
                     </Link>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground">No books are currently borrowed</p>
+                <p className="text-sm text-muted-foreground">No hay libros prestados actualmente</p>
               )}
               
               {mostBorrowedBooks.length > 4 && (
@@ -122,7 +121,7 @@ const Dashboard = () => {
                   to="/books?filter=borrowed"
                   className="text-sm font-medium text-library-primary hover:underline"
                 >
-                  View all borrowed books
+                  Ver todos los libros prestados
                 </Link>
               )}
             </div>
@@ -133,7 +132,7 @@ const Dashboard = () => {
       <div className="grid gap-4 md:grid-cols-1">
         <Card>
           <CardHeader>
-            <CardTitle>Students with Books</CardTitle>
+            <CardTitle>Estudiantes con Libros</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -147,13 +146,13 @@ const Dashboard = () => {
                           <h3 className="font-medium">{student.name}</h3>
                           <p className="text-sm text-muted-foreground">{student.grade} | {student.code}</p>
                           <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground">Borrowed books ({studentBooks.length})</p>
+                            <p className="text-xs text-muted-foreground">Libros prestados ({studentBooks.length})</p>
                             <div className="space-y-1">
                               {studentBooks.slice(0, 2).map(book => (
                                 <p key={book.id} className="text-xs truncate">{book.title}</p>
                               ))}
                               {studentBooks.length > 2 && (
-                                <p className="text-xs text-library-primary">+{studentBooks.length - 2} more</p>
+                                <p className="text-xs text-library-primary">+{studentBooks.length - 2} más</p>
                               )}
                             </div>
                           </div>
@@ -163,7 +162,7 @@ const Dashboard = () => {
                             to={`/students/${student.id}`}
                             className="text-sm font-medium text-library-primary hover:underline"
                           >
-                            View student
+                            Ver estudiante
                           </Link>
                         </div>
                       </div>
@@ -171,7 +170,7 @@ const Dashboard = () => {
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No students currently have borrowed books</p>
+                <p className="text-sm text-muted-foreground">No hay estudiantes con libros prestados actualmente</p>
               )}
               
               {studentsWithBooks.length > 6 && (
@@ -179,7 +178,7 @@ const Dashboard = () => {
                   to="/students"
                   className="text-sm font-medium text-library-primary hover:underline"
                 >
-                  View all students
+                  Ver todos los estudiantes
                 </Link>
               )}
             </div>

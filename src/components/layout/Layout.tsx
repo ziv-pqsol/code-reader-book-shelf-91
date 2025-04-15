@@ -1,5 +1,6 @@
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { useAuth } from '@/context/AuthContext';
@@ -10,9 +11,16 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
 
   if (!isAuthenticated) {
-    return <>{children}</>;
+    return null;
   }
 
   return (
