@@ -60,10 +60,10 @@ const StudentDetailPage = () => {
   if (!student) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <h1 className="text-2xl font-semibold mb-2">Student Not Found</h1>
-        <p className="text-muted-foreground mb-6">The student you're looking for doesn't exist</p>
+        <h1 className="text-2xl font-semibold mb-2">Estudiante No Encontrado</h1>
+        <p className="text-muted-foreground mb-6">El estudiante que estás buscando no existe</p>
         <Button asChild>
-          <Link to="/students">Go Back to Students</Link>
+          <Link to="/students">Volver a Estudiantes</Link>
         </Button>
       </div>
     );
@@ -77,7 +77,7 @@ const StudentDetailPage = () => {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Student Profile</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Perfil de Estudiante</h1>
       </div>
       
       <div className="grid gap-6 md:grid-cols-12">
@@ -94,16 +94,16 @@ const StudentDetailPage = () => {
               <div className="space-y-4">
                 <div className="text-center">
                   <h2 className="text-2xl font-bold">{student.name}</h2>
-                  <p className="text-muted-foreground">Student Code: {student.code}</p>
+                  <p className="text-muted-foreground">Código: {student.code}</p>
                 </div>
                 
                 <div className="pt-4 space-y-3 border-t">
                   <div className="flex justify-between">
-                    <p className="text-muted-foreground">Grade</p>
+                    <p className="text-muted-foreground">Grado</p>
                     <Badge variant="outline">{student.grade}</Badge>
                   </div>
                   <div className="flex justify-between">
-                    <p className="text-muted-foreground">Books Borrowed</p>
+                    <p className="text-muted-foreground">Libros Prestados</p>
                     <p className="font-medium">{studentBooks.length}</p>
                   </div>
                 </div>
@@ -116,10 +116,10 @@ const StudentDetailPage = () => {
         <div className="md:col-span-8">
           <div className="mt-4 space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Currently Borrowed Books</h2>
+              <h2 className="text-xl font-semibold">Libros Actualmente Prestados</h2>
               <Button size="sm" onClick={() => setIsAssignBookOpen(true)}>
                 <PlusCircle className="h-4 w-4 mr-2" />
-                Assign Book
+                Asignar Libro
               </Button>
             </div>
             
@@ -131,7 +131,7 @@ const StudentDetailPage = () => {
                       <div className="flex">
                         <div 
                           className="w-1/4 bg-cover bg-center" 
-                          style={{ backgroundImage: `url(${book.coverUrl || 'https://placehold.co/100x150/e5e7eb/a3a3a3?text=No+Cover'})` }}
+                          style={{ backgroundImage: `url(${book.coverUrl || 'https://placehold.co/100x150/e5e7eb/a3a3a3?text=Sin+Portada'})` }}
                         ></div>
                         <div className="w-3/4 p-4">
                           <div className="flex justify-between">
@@ -148,7 +148,7 @@ const StudentDetailPage = () => {
                               </Badge>
                               <h3 className="font-semibold">{book.title}</h3>
                               <p className="text-sm text-muted-foreground">{book.author}</p>
-                              <p className="text-sm mt-2">Code: {book.code}</p>
+                              <p className="text-sm mt-2">Código: {book.code}</p>
                             </div>
                             <div className="flex flex-col space-y-2">
                               <Button 
@@ -158,7 +158,7 @@ const StudentDetailPage = () => {
                               >
                                 <Link to={`/books/${book.id}`}>
                                   <BookOpen className="h-4 w-4 mr-2" />
-                                  View
+                                  Ver
                                 </Link>
                               </Button>
                               <Button 
@@ -167,12 +167,12 @@ const StudentDetailPage = () => {
                                 onClick={() => {
                                   returnBook(book.id);
                                   toast({
-                                    title: "Book returned",
-                                    description: `${book.title} has been returned to the library`,
+                                    title: "Libro devuelto",
+                                    description: `${book.title} ha sido devuelto a la biblioteca`,
                                   });
                                 }}
                               >
-                                Return Book
+                                Devolver Libro
                               </Button>
                             </div>
                           </div>
@@ -185,11 +185,11 @@ const StudentDetailPage = () => {
             ) : (
               <div className="text-center py-12 border rounded-lg">
                 <BookOpen className="h-12 w-12 text-muted-foreground opacity-20 mx-auto mb-2" />
-                <h3 className="font-medium text-lg">No Books Borrowed</h3>
-                <p className="text-muted-foreground">This student isn't currently borrowing any books.</p>
+                <h3 className="font-medium text-lg">Sin Libros Prestados</h3>
+                <p className="text-muted-foreground">Este estudiante no tiene libros prestados actualmente.</p>
                 <Button className="mt-4" size="sm" onClick={() => setIsAssignBookOpen(true)}>
                   <PlusCircle className="h-4 w-4 mr-2" />
-                  Assign Book
+                  Asignar Libro
                 </Button>
               </div>
             )}
@@ -201,16 +201,16 @@ const StudentDetailPage = () => {
       <Dialog open={isAssignBookOpen} onOpenChange={setIsAssignBookOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Assign Book</DialogTitle>
+            <DialogTitle>Asignar Libro</DialogTitle>
             <DialogDescription>
-              Select a book to assign to this student.
+              Selecciona un libro para asignar a este estudiante.
             </DialogDescription>
           </DialogHeader>
           
           <div className="py-4">
             <Select value={selectedBookId} onValueChange={setSelectedBookId}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a book" />
+                <SelectValue placeholder="Selecciona un libro" />
               </SelectTrigger>
               <SelectContent>
                 {availableBooks.length > 0 ? (
@@ -221,7 +221,7 @@ const StudentDetailPage = () => {
                   ))
                 ) : (
                   <SelectItem value="none" disabled>
-                    No books available
+                    No hay libros disponibles
                   </SelectItem>
                 )}
               </SelectContent>
@@ -230,10 +230,10 @@ const StudentDetailPage = () => {
           
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={() => setIsAssignBookOpen(false)}>
-              Cancel
+              Cancelar
             </Button>
             <Button onClick={handleAssignBook}>
-              Assign
+              Asignar
             </Button>
           </div>
         </DialogContent>

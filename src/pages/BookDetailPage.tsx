@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
@@ -37,10 +38,10 @@ const BookDetailPage = () => {
   if (!book) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <h1 className="text-2xl font-semibold mb-2">Book Not Found</h1>
-        <p className="text-muted-foreground mb-6">The book you're looking for doesn't exist</p>
+        <h1 className="text-2xl font-semibold mb-2">Libro No Encontrado</h1>
+        <p className="text-muted-foreground mb-6">El libro que estás buscando no existe</p>
         <Button asChild>
-          <Link to="/books">Go Back to Books</Link>
+          <Link to="/books">Volver a Libros</Link>
         </Button>
       </div>
     );
@@ -49,7 +50,7 @@ const BookDetailPage = () => {
   const borrower = book.borrowerId ? getStudentById(book.borrowerId) : null;
   
   // Here we'd fetch the real book cover; for the demo using the cover URL or placeholder
-  const coverUrl = book.coverUrl || 'https://placehold.co/300x450/e5e7eb/a3a3a3?text=No+Cover';
+  const coverUrl = book.coverUrl || 'https://placehold.co/300x450/e5e7eb/a3a3a3?text=Sin+Portada';
   
   const handleAssignStudent = () => {
     if (!selectedStudentId) {
@@ -79,7 +80,7 @@ const BookDetailPage = () => {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Book Details</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Detalles del Libro</h1>
       </div>
       
       <div className="grid gap-6 md:grid-cols-12">
@@ -90,7 +91,7 @@ const BookDetailPage = () => {
               <div className="flex justify-center mb-4">
                 <img 
                   src={coverUrl}
-                  alt={`Cover of ${book.title}`}
+                  alt={`Portada de ${book.title}`}
                   className="w-full max-w-[200px] rounded shadow-md"
                 />
               </div>
@@ -113,18 +114,18 @@ const BookDetailPage = () => {
                 
                 <div className="pt-4 space-y-3 border-t">
                   <div className="flex justify-between">
-                    <p className="text-muted-foreground">Book Code</p>
+                    <p className="text-muted-foreground">Código del Libro</p>
                     <p className="font-medium">{book.code}</p>
                   </div>
                   <div className="flex justify-between">
-                    <p className="text-muted-foreground">Status</p>
+                    <p className="text-muted-foreground">Estado</p>
                     {book.available ? (
                       <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                        Available
+                        Disponible
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                        Borrowed
+                        Prestado
                       </Badge>
                     )}
                   </div>
@@ -139,7 +140,7 @@ const BookDetailPage = () => {
                   onClick={() => setIsEditBookOpen(true)}
                 >
                   <Edit className="h-4 w-4 mr-2" />
-                  Edit Book
+                  Editar Libro
                 </Button>
               </div>
             </CardContent>
@@ -158,15 +159,15 @@ const BookDetailPage = () => {
                         <BookOpen className="h-5 w-5 text-green-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold">Book Available</h3>
-                        <p className="text-sm text-muted-foreground">This book is available for borrowing</p>
+                        <h3 className="font-semibold">Libro Disponible</h3>
+                        <p className="text-sm text-muted-foreground">Este libro está disponible para préstamo</p>
                       </div>
                     </div>
-                    <Button onClick={() => setIsAssignStudentOpen(true)}>Assign to Student</Button>
+                    <Button onClick={() => setIsAssignStudentOpen(true)}>Asignar a Estudiante</Button>
                   </div>
                   
                   <div>
-                    <h3 className="font-medium mb-4">Book can be assigned to:</h3>
+                    <h3 className="font-medium mb-4">El libro puede ser asignado a:</h3>
                     <div className="grid gap-2 md:grid-cols-2">
                       {students.slice(0, 4).map((student) => (
                         <Card key={student.id} className="overflow-hidden">
@@ -176,8 +177,8 @@ const BookDetailPage = () => {
                             onClick={() => {
                               borrowBook(book.id, student.id);
                               toast({
-                                title: "Book assigned",
-                                description: `${book.title} has been assigned to ${student.name}`,
+                                title: "Libro asignado",
+                                description: `${book.title} ha sido asignado a ${student.name}`,
                               });
                             }}
                           >
@@ -197,7 +198,7 @@ const BookDetailPage = () => {
                           variant="link"
                           onClick={() => setIsAssignStudentOpen(true)}
                         >
-                          View more students
+                          Ver más estudiantes
                         </Button>
                       </div>
                     )}
@@ -213,8 +214,8 @@ const BookDetailPage = () => {
                         <User className="h-5 w-5 text-amber-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold">Currently Borrowed</h3>
-                        <p className="text-sm text-muted-foreground">This book is currently borrowed by a student</p>
+                        <h3 className="font-semibold">Actualmente Prestado</h3>
+                        <p className="text-sm text-muted-foreground">Este libro está actualmente prestado a un estudiante</p>
                       </div>
                     </div>
                     <Button 
@@ -222,12 +223,12 @@ const BookDetailPage = () => {
                       onClick={() => {
                         returnBook(book.id);
                         toast({
-                          title: "Book returned",
-                          description: `${book.title} has been returned to the library`,
+                          title: "Libro devuelto",
+                          description: `${book.title} ha sido devuelto a la biblioteca`,
                         });
                       }}
                     >
-                      Return Book
+                      Devolver Libro
                     </Button>
                   </div>
                   
@@ -248,7 +249,7 @@ const BookDetailPage = () => {
                           asChild
                         >
                           <Link to={`/students/${borrower.id}`}>
-                            View Profile
+                            Ver Perfil
                           </Link>
                         </Button>
                       </div>
@@ -260,9 +261,9 @@ const BookDetailPage = () => {
               <Card>
                 <CardContent className="p-6">
                   <div className="text-center py-6">
-                    <h3 className="font-semibold text-lg">Borrower Information Missing</h3>
+                    <h3 className="font-semibold text-lg">Información del Prestatario Faltante</h3>
                     <p className="text-muted-foreground mb-4">
-                      This book is marked as borrowed but the borrower information is not available.
+                      Este libro está marcado como prestado pero la información del prestatario no está disponible.
                     </p>
                     <div className="flex justify-center space-x-2">
                       <Button 
@@ -270,14 +271,14 @@ const BookDetailPage = () => {
                         onClick={() => {
                           returnBook(book.id);
                           toast({
-                            title: "Book available",
-                            description: `${book.title} has been marked as available`,
+                            title: "Libro disponible",
+                            description: `${book.title} ha sido marcado como disponible`,
                           });
                         }}
                       >
-                        Mark as Available
+                        Marcar como Disponible
                       </Button>
-                      <Button onClick={() => setIsAssignStudentOpen(true)}>Assign to Student</Button>
+                      <Button onClick={() => setIsAssignStudentOpen(true)}>Asignar a Estudiante</Button>
                     </div>
                   </div>
                 </CardContent>
@@ -291,16 +292,16 @@ const BookDetailPage = () => {
       <Dialog open={isAssignStudentOpen} onOpenChange={setIsAssignStudentOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Assign Book to Student</DialogTitle>
+            <DialogTitle>Asignar Libro a Estudiante</DialogTitle>
             <DialogDescription>
-              Select a student to assign this book to.
+              Selecciona un estudiante para asignarle este libro.
             </DialogDescription>
           </DialogHeader>
           
           <div className="py-4">
             <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a student" />
+                <SelectValue placeholder="Selecciona un estudiante" />
               </SelectTrigger>
               <SelectContent>
                 {students.length > 0 ? (
@@ -311,7 +312,7 @@ const BookDetailPage = () => {
                   ))
                 ) : (
                   <SelectItem value="none" disabled>
-                    No students available
+                    No hay estudiantes disponibles
                   </SelectItem>
                 )}
               </SelectContent>
@@ -320,10 +321,10 @@ const BookDetailPage = () => {
           
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={() => setIsAssignStudentOpen(false)}>
-              Cancel
+              Cancelar
             </Button>
             <Button onClick={handleAssignStudent}>
-              Assign
+              Asignar
             </Button>
           </div>
         </DialogContent>
