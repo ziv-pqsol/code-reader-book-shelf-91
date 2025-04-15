@@ -5,75 +5,46 @@ import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { QrCode, User, Book, AlertCircle } from 'lucide-react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { User, Book, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 const ScannerPage = () => {
   const navigate = useNavigate();
   const { searchStudents, searchBooks } = useLibrary();
   const [activeTab, setActiveTab] = useState<string>('students');
-  const [scannerInitialized, setScannerInitialized] = useState<boolean>(false);
-  const [scanResult, setScanResult] = useState<string | null>(null);
-  const [scanError, setScanError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [matchedStudents, setMatchedStudents] = useState<any[]>([]);
   const [matchedBooks, setMatchedBooks] = useState<any[]>([]);
   
-  useEffect(() => {
-    // Initialize scanner if not done yet
-    if (!scannerInitialized) {
-      const scannerConfig = {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        rememberLastUsedCamera: true,
-      };
-      
-      const html5QrCodeScanner = new Html5QrcodeScanner(
-        "qr-reader",
-        scannerConfig,
-        false
-      );
-      
-      const onScanSuccess = (decodedText: string) => {
-        setScanResult(decodedText);
-        setScanError(null);
-        
-        // Search for students or books with this code
-        const foundStudents = searchStudents(decodedText);
-        const foundBooks = searchBooks(decodedText);
-        
-        setMatchedStudents(foundStudents);
-        setMatchedBooks(foundBooks);
-        
-        // If we found exactly one match of the active type, navigate there directly
-        if (activeTab === 'students' && foundStudents.length === 1) {
-          navigate(`/students/${foundStudents[0].id}`);
-        } else if (activeTab === 'books' && foundBooks.length === 1) {
-          navigate(`/books/${foundBooks[0].id}`);
-        }
-      };
-      
-      const onScanFailure = (error: any) => {
-        // Don't set error on each frame, only if we have a result and then get an error
-        if (scanResult) {
-          setScanError('Failed to scan QR code. Please try again.');
-        }
-      };
-      
-      html5QrCodeScanner.render(onScanSuccess, onScanFailure);
-      setScannerInitialized(true);
-      
-      return () => {
-        // Cleanup
-        html5QrCodeScanner.clear().catch(console.error);
-      };
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+    
+    const foundStudents = searchStudents(searchQuery);
+    const foundBooks = searchBooks(searchQuery);
+    
+    setMatchedStudents(foundStudents);
+    setMatchedBooks(foundBooks);
+    
+    // If we found exactly one match of the active type, navigate there directly
+    if (activeTab === 'students' && foundStudents.length === 1) {
+      navigate(`/students/${foundStudents[0].id}`);
+    } else if (activeTab === 'books' && foundBooks.length === 1) {
+      navigate(`/books/${foundBooks[0].id}`);
     }
-  }, [scannerInitialized, scanResult, activeTab, searchStudents, searchBooks, navigate]);
+  };
+  
+  useEffect(() => {
+    // Clear results when tab changes
+    setMatchedStudents([]);
+    setMatchedBooks([]);
+    setSearchQuery('');
+  }, [activeTab]);
   
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">QR Code Scanner</h1>
-        <p className="text-muted-foreground">Scan student or book QR codes</p>
+        <h1 className="text-3xl font-bold tracking-tight">Search</h1>
+        <p className="text-muted-foreground">Search for students or books by code or name</p>
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -92,26 +63,27 @@ const ScannerPage = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <QrCode className="h-5 w-5 mr-2" />
-                Student QR Scanner
+                <Search className="h-5 w-5 mr-2" />
+                Student Search
               </CardTitle>
               <CardDescription>
-                Scan a student's QR code to find their information
+                Search for a student by name or code
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div id="qr-reader" className="mx-auto max-w-md"></div>
+              <div className="flex space-x-2">
+                <Input 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Enter student name or code"
+                  onKeyUp={(e) => e.key === 'Enter' && handleSearch()}
+                />
+                <Button onClick={handleSearch}>Search</Button>
+              </div>
               
-              {scanError && (
-                <div className="mt-4 p-4 bg-red-50 text-red-700 rounded-md flex items-center">
-                  <AlertCircle className="h-5 w-5 mr-2" />
-                  {scanError}
-                </div>
-              )}
-              
-              {scanResult && matchedStudents.length > 0 && (
+              {matchedStudents.length > 0 && (
                 <div className="mt-4 space-y-4">
-                  <h3 className="font-medium">Matched Students:</h3>
+                  <h3 className="font-medium">Search Results:</h3>
                   <div className="grid gap-2">
                     {matchedStudents.map(student => (
                       <Card key={student.id}>
@@ -132,10 +104,9 @@ const ScannerPage = () => {
                 </div>
               )}
               
-              {scanResult && matchedStudents.length === 0 && (
+              {searchQuery && matchedStudents.length === 0 && (
                 <div className="mt-4 p-4 bg-amber-50 text-amber-700 rounded-md flex items-center">
-                  <AlertCircle className="h-5 w-5 mr-2" />
-                  No students found with code: {scanResult}
+                  <p>No students found matching: {searchQuery}</p>
                 </div>
               )}
             </CardContent>
@@ -146,26 +117,27 @@ const ScannerPage = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <QrCode className="h-5 w-5 mr-2" />
-                Book QR Scanner
+                <Search className="h-5 w-5 mr-2" />
+                Book Search
               </CardTitle>
               <CardDescription>
-                Scan a book's QR code to find its information
+                Search for a book by title, author or code
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div id="qr-reader" className="mx-auto max-w-md"></div>
+              <div className="flex space-x-2">
+                <Input 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Enter book title, author or code"
+                  onKeyUp={(e) => e.key === 'Enter' && handleSearch()}
+                />
+                <Button onClick={handleSearch}>Search</Button>
+              </div>
               
-              {scanError && (
-                <div className="mt-4 p-4 bg-red-50 text-red-700 rounded-md flex items-center">
-                  <AlertCircle className="h-5 w-5 mr-2" />
-                  {scanError}
-                </div>
-              )}
-              
-              {scanResult && matchedBooks.length > 0 && (
+              {matchedBooks.length > 0 && (
                 <div className="mt-4 space-y-4">
-                  <h3 className="font-medium">Matched Books:</h3>
+                  <h3 className="font-medium">Search Results:</h3>
                   <div className="grid gap-2">
                     {matchedBooks.map(book => (
                       <Card key={book.id}>
@@ -186,10 +158,9 @@ const ScannerPage = () => {
                 </div>
               )}
               
-              {scanResult && matchedBooks.length === 0 && (
+              {searchQuery && matchedBooks.length === 0 && (
                 <div className="mt-4 p-4 bg-amber-50 text-amber-700 rounded-md flex items-center">
-                  <AlertCircle className="h-5 w-5 mr-2" />
-                  No books found with code: {scanResult}
+                  <p>No books found matching: {searchQuery}</p>
                 </div>
               )}
             </CardContent>

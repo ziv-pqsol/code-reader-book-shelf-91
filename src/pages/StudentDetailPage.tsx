@@ -8,14 +8,55 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, BookOpen, PlusCircle, User, Edit } from 'lucide-react';
 import { genreColors } from '@/data/mockData';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useToast } from "@/hooks/use-toast";
 
 const StudentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { getStudentById, getStudentBooks, returnBook } = useLibrary();
+  const { getStudentById, getStudentBooks, returnBook, books, borrowBook } = useLibrary();
   const [tab, setTab] = useState('books');
+  const [isAssignBookOpen, setIsAssignBookOpen] = useState(false);
+  const [selectedBookId, setSelectedBookId] = useState<string>('');
+  const { toast } = useToast();
   
   const student = getStudentById(id || '');
   const studentBooks = getStudentBooks(id || '');
+  
+  // Filter only available books
+  const availableBooks = books.filter(book => book.available);
+  
+  const handleAssignBook = () => {
+    if (!selectedBookId) {
+      toast({
+        title: "Error",
+        description: "Por favor selecciona un libro",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    borrowBook(selectedBookId, id || '');
+    setIsAssignBookOpen(false);
+    setSelectedBookId('');
+    
+    toast({
+      title: "Libro asignado",
+      description: "El libro ha sido asignado correctamente",
+    });
+  };
   
   if (!student) {
     return (
@@ -77,22 +118,6 @@ const StudentDetailPage = () => {
               </div>
             </CardContent>
           </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="font-semibold mb-4">QR Code</h3>
-              <div className="bg-white p-4 rounded-lg flex items-center justify-center">
-                <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?data=${student.code}&size=150x150`} 
-                  alt="Student QR Code"
-                  className="w-full max-w-[150px]" 
-                />
-              </div>
-              <p className="text-xs text-muted-foreground text-center mt-2">
-                This QR code contains the student's code: {student.code}
-              </p>
-            </CardContent>
-          </Card>
         </div>
         
         {/* Right column - Books and History */}
@@ -106,7 +131,7 @@ const StudentDetailPage = () => {
             <TabsContent value="books" className="mt-4 space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">Currently Borrowed Books</h2>
-                <Button size="sm">
+                <Button size="sm" onClick={() => setIsAssignBookOpen(true)}>
                   <PlusCircle className="h-4 w-4 mr-2" />
                   Assign Book
                 </Button>
@@ -170,7 +195,7 @@ const StudentDetailPage = () => {
                   <BookOpen className="h-12 w-12 text-muted-foreground opacity-20 mx-auto mb-2" />
                   <h3 className="font-medium text-lg">No Books Borrowed</h3>
                   <p className="text-muted-foreground">This student isn't currently borrowing any books.</p>
-                  <Button className="mt-4" size="sm">
+                  <Button className="mt-4" size="sm" onClick={() => setIsAssignBookOpen(true)}>
                     <PlusCircle className="h-4 w-4 mr-2" />
                     Assign Book
                   </Button>
@@ -189,6 +214,48 @@ const StudentDetailPage = () => {
           </Tabs>
         </div>
       </div>
+      
+      {/* Assign Book Dialog */}
+      <Dialog open={isAssignBookOpen} onOpenChange={setIsAssignBookOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Assign Book</DialogTitle>
+            <DialogDescription>
+              Select a book to assign to this student.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <Select value={selectedBookId} onValueChange={setSelectedBookId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a book" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableBooks.length > 0 ? (
+                  availableBooks.map((book) => (
+                    <SelectItem key={book.id} value={book.id}>
+                      {book.title} - {book.code}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="none" disabled>
+                    No books available
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsAssignBookOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAssignBook}>
+              Assign
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

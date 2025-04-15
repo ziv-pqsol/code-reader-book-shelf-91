@@ -15,7 +15,8 @@ const Navbar = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      navigate(`/search-results?q=${encodeURIComponent(searchQuery)}`);
+      setSearchQuery('');
     }
   };
 
@@ -98,6 +99,16 @@ const Navbar = () => {
               }}
             >
               Libros
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start"
+              onClick={() => { 
+                navigate('/search');
+                setMobileMenuOpen(false);
+              }}
+            >
+              Búsqueda
             </Button>
           </div>
         </div>
