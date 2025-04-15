@@ -5,7 +5,6 @@ import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, User, Edit, BookOpen } from 'lucide-react';
 import { genreColors } from '@/data/mockData';
 import {
@@ -27,7 +26,6 @@ import { useToast } from "@/hooks/use-toast";
 const BookDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { getBookById, returnBook, getStudentById, students, borrowBook, books } = useLibrary();
-  const [tab, setTab] = useState('details');
   const [isEditBookOpen, setIsEditBookOpen] = useState(false);
   const [isAssignStudentOpen, setIsAssignStudentOpen] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
@@ -150,158 +148,142 @@ const BookDetailPage = () => {
         
         {/* Right column - Book status and related info */}
         <div className="md:col-span-8">
-          <Tabs defaultValue={tab} onValueChange={setTab}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="details">Borrowing Status</TabsTrigger>
-              <TabsTrigger value="history">Borrowing History</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="details" className="mt-4 space-y-4">
-              {book.available ? (
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 rounded-full bg-green-100 mr-4 flex items-center justify-center">
-                          <BookOpen className="h-5 w-5 text-green-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">Book Available</h3>
-                          <p className="text-sm text-muted-foreground">This book is available for borrowing</p>
-                        </div>
+          <div className="mt-4 space-y-4">
+            {book.available ? (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 rounded-full bg-green-100 mr-4 flex items-center justify-center">
+                        <BookOpen className="h-5 w-5 text-green-600" />
                       </div>
-                      <Button onClick={() => setIsAssignStudentOpen(true)}>Assign to Student</Button>
+                      <div>
+                        <h3 className="font-semibold">Book Available</h3>
+                        <p className="text-sm text-muted-foreground">This book is available for borrowing</p>
+                      </div>
+                    </div>
+                    <Button onClick={() => setIsAssignStudentOpen(true)}>Assign to Student</Button>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-medium mb-4">Book can be assigned to:</h3>
+                    <div className="grid gap-2 md:grid-cols-2">
+                      {students.slice(0, 4).map((student) => (
+                        <Card key={student.id} className="overflow-hidden">
+                          <Button 
+                            variant="ghost" 
+                            className="h-auto p-4 w-full justify-start"
+                            onClick={() => {
+                              borrowBook(book.id, student.id);
+                              toast({
+                                title: "Book assigned",
+                                description: `${book.title} has been assigned to ${student.name}`,
+                              });
+                            }}
+                          >
+                            <User className="h-5 w-5 mr-2 flex-shrink-0" />
+                            <div className="text-left flex-grow truncate">
+                              <p className="font-medium">{student.name}</p>
+                              <p className="text-xs text-muted-foreground">{student.grade} • {student.code}</p>
+                            </div>
+                          </Button>
+                        </Card>
+                      ))}
                     </div>
                     
-                    <div>
-                      <h3 className="font-medium mb-4">Book can be assigned to:</h3>
-                      <div className="grid gap-2 md:grid-cols-2">
-                        {students.slice(0, 4).map((student) => (
-                          <Card key={student.id} className="overflow-hidden">
-                            <Button 
-                              variant="ghost" 
-                              className="h-auto p-4 w-full justify-start"
-                              onClick={() => {
-                                borrowBook(book.id, student.id);
-                                toast({
-                                  title: "Book assigned",
-                                  description: `${book.title} has been assigned to ${student.name}`,
-                                });
-                              }}
-                            >
-                              <User className="h-5 w-5 mr-2 flex-shrink-0" />
-                              <div className="text-left flex-grow truncate">
-                                <p className="font-medium">{student.name}</p>
-                                <p className="text-xs text-muted-foreground">{student.grade} • {student.code}</p>
-                              </div>
-                            </Button>
-                          </Card>
-                        ))}
+                    {students.length > 4 && (
+                      <div className="mt-2 text-center">
+                        <Button 
+                          variant="link"
+                          onClick={() => setIsAssignStudentOpen(true)}
+                        >
+                          View more students
+                        </Button>
                       </div>
-                      
-                      {students.length > 4 && (
-                        <div className="mt-2 text-center">
-                          <Button 
-                            variant="link"
-                            onClick={() => setIsAssignStudentOpen(true)}
-                          >
-                            View more students
-                          </Button>
-                        </div>
-                      )}
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ) : borrower ? (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 rounded-full bg-amber-100 mr-4 flex items-center justify-center">
+                        <User className="h-5 w-5 text-amber-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">Currently Borrowed</h3>
+                        <p className="text-sm text-muted-foreground">This book is currently borrowed by a student</p>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ) : borrower ? (
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 rounded-full bg-amber-100 mr-4 flex items-center justify-center">
-                          <User className="h-5 w-5 text-amber-600" />
+                    <Button 
+                      variant="destructive"
+                      onClick={() => {
+                        returnBook(book.id);
+                        toast({
+                          title: "Book returned",
+                          description: `${book.title} has been returned to the library`,
+                        });
+                      }}
+                    >
+                      Return Book
+                    </Button>
+                  </div>
+                  
+                  <Card className="overflow-hidden">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center">
+                          <div className="w-12 h-12 rounded-full bg-library-primary bg-opacity-10 mr-4 flex items-center justify-center">
+                            <User className="h-6 w-6 text-library-primary" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold">{borrower.name}</h3>
+                            <p className="text-sm text-muted-foreground">{borrower.grade} • {borrower.code}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-semibold">Currently Borrowed</h3>
-                          <p className="text-sm text-muted-foreground">This book is currently borrowed by a student</p>
-                        </div>
+                        <Button 
+                          variant="outline"
+                          asChild
+                        >
+                          <Link to={`/students/${borrower.id}`}>
+                            View Profile
+                          </Link>
+                        </Button>
                       </div>
+                    </CardContent>
+                  </Card>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center py-6">
+                    <h3 className="font-semibold text-lg">Borrower Information Missing</h3>
+                    <p className="text-muted-foreground mb-4">
+                      This book is marked as borrowed but the borrower information is not available.
+                    </p>
+                    <div className="flex justify-center space-x-2">
                       <Button 
-                        variant="destructive"
+                        variant="outline"
                         onClick={() => {
                           returnBook(book.id);
                           toast({
-                            title: "Book returned",
-                            description: `${book.title} has been returned to the library`,
+                            title: "Book available",
+                            description: `${book.title} has been marked as available`,
                           });
                         }}
                       >
-                        Return Book
+                        Mark as Available
                       </Button>
+                      <Button onClick={() => setIsAssignStudentOpen(true)}>Assign to Student</Button>
                     </div>
-                    
-                    <Card className="overflow-hidden">
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center">
-                            <div className="w-12 h-12 rounded-full bg-library-primary bg-opacity-10 mr-4 flex items-center justify-center">
-                              <User className="h-6 w-6 text-library-primary" />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold">{borrower.name}</h3>
-                              <p className="text-sm text-muted-foreground">{borrower.grade} • {borrower.code}</p>
-                            </div>
-                          </div>
-                          <Button 
-                            variant="outline"
-                            asChild
-                          >
-                            <Link to={`/students/${borrower.id}`}>
-                              View Profile
-                            </Link>
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="text-center py-6">
-                      <h3 className="font-semibold text-lg">Borrower Information Missing</h3>
-                      <p className="text-muted-foreground mb-4">
-                        This book is marked as borrowed but the borrower information is not available.
-                      </p>
-                      <div className="flex justify-center space-x-2">
-                        <Button 
-                          variant="outline"
-                          onClick={() => {
-                            returnBook(book.id);
-                            toast({
-                              title: "Book available",
-                              description: `${book.title} has been marked as available`,
-                            });
-                          }}
-                        >
-                          Mark as Available
-                        </Button>
-                        <Button onClick={() => setIsAssignStudentOpen(true)}>Assign to Student</Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="history" className="mt-4">
-              <div className="text-center py-12 border rounded-lg">
-                <h3 className="font-medium text-lg">Borrowing History</h3>
-                <p className="text-muted-foreground">
-                  The borrowing history feature is not implemented in this demo version.
-                </p>
-              </div>
-            </TabsContent>
-          </Tabs>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </div>
       

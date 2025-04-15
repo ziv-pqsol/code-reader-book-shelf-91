@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { Book, Student, mapSupabaseBook, mapSupabaseStudent, mapBookToSupabase, mapStudentToSupabase } from '../types';
 import { useToast } from "@/hooks/use-toast";
@@ -15,7 +14,6 @@ interface LibraryContextType {
   borrowBook: (bookId: string, studentId: string) => void;
   returnBook: (bookId: string) => void;
   getStudentBooks: (studentId: string) => Book[];
-  getStudentBorrowingHistory: (studentId: string) => Book[];
   getBookStats: () => {
     totalBooks: number;
     availableBooks: number;
@@ -303,13 +301,6 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
     return books.filter(book => book.borrowerId === studentId);
   };
 
-  // New function to get student borrowing history
-  const getStudentBorrowingHistory = (studentId: string): Book[] => {
-    // For now we're returning the same as current books
-    // In a real application this would fetch from a borrowing_history table
-    return getStudentBooks(studentId);
-  };
-
   const getBookStats = () => {
     const totalBooks = books.length;
     const availableBooks = books.filter(book => book.available).length;
@@ -347,7 +338,6 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
         borrowBook,
         returnBook,
         getStudentBooks,
-        getStudentBorrowingHistory,
         getBookStats,
         addBook,
         addStudent,
