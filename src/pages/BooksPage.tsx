@@ -45,19 +45,19 @@ const BooksPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Books</h1>
-          <p className="text-muted-foreground">Browse and manage library books</p>
+          <h1 className="text-3xl font-bold tracking-tight">Libros</h1>
+          <p className="text-muted-foreground">Gestionar y ver información de libros</p>
         </div>
         <Button className="sm:self-end">
           <PlusCircle className="mr-2 h-4 w-4" />
-          Add Book
+          Añadir Libro
         </Button>
       </div>
       
       <div className="relative">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search books by title, author or code..."
+          placeholder="Buscar por título, autor o código..."
           className="pl-8"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -66,9 +66,9 @@ const BooksPage = () => {
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="all">All Books</TabsTrigger>
-          <TabsTrigger value="available">Available</TabsTrigger>
-          <TabsTrigger value="borrowed">Borrowed</TabsTrigger>
+          <TabsTrigger value="all">Todos</TabsTrigger>
+          <TabsTrigger value="available">Disponibles</TabsTrigger>
+          <TabsTrigger value="borrowed">Prestados</TabsTrigger>
         </TabsList>
         
         <TabsContent value="all" className="mt-4">
@@ -92,8 +92,8 @@ const BookGrid = ({ books }: { books: any[] }) => {
     return (
       <div className="flex justify-center py-12">
         <div className="text-center">
-          <p className="text-lg font-semibold">No books found</p>
-          <p className="text-muted-foreground">Try adjusting your search or filter</p>
+          <p className="text-lg font-semibold">No se encontraron libros</p>
+          <p className="text-muted-foreground">Intenta ajustar tu búsqueda o filtro</p>
         </div>
       </div>
     );
@@ -108,7 +108,7 @@ const BookGrid = ({ books }: { books: any[] }) => {
               <div className="flex h-full">
                 <div 
                   className="w-2/5 bg-cover bg-center" 
-                  style={{ backgroundImage: `url(${book.coverUrl || 'https://placehold.co/100x150/e5e7eb/a3a3a3?text=No+Cover'})` }}
+                  style={{ backgroundImage: `url(${book.coverUrl || 'https://placehold.co/100x150/e5e7eb/a3a3a3?text=Sin+Portada'})` }}
                 ></div>
                 <div className="w-3/5 p-4 flex flex-col">
                   <div>
@@ -129,12 +129,12 @@ const BookGrid = ({ books }: { books: any[] }) => {
                     {book.available ? (
                       <Badge variant="outline" className="flex items-center gap-1 bg-green-50 text-green-700 border-green-200">
                         <BookOpen className="h-3 w-3" />
-                        Available
+                        Disponible
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="flex items-center gap-1 bg-amber-50 text-amber-700 border-amber-200">
                         <User className="h-3 w-3" />
-                        Borrowed
+                        Prestado
                       </Badge>
                     )}
                   </div>

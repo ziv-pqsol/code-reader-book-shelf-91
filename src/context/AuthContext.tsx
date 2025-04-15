@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { mockUser } from '../data/mockData';
 import { useNavigate } from 'react-router-dom';
@@ -15,7 +14,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
   }
   return context;
 };
@@ -29,7 +28,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Check if user is already logged in
   useEffect(() => {
     const loggedIn = localStorage.getItem('isAuthenticated') === 'true';
     setIsAuthenticated(loggedIn);
@@ -45,7 +43,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('isAuthenticated', 'true');
       return true;
     } else {
-      setError('Invalid username or password');
+      setError('Usuario o contraseña inválidos');
       return false;
     }
   };

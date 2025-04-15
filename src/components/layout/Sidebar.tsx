@@ -1,6 +1,6 @@
 
 import { cn } from '@/lib/utils';
-import { Book, BarChart3, Users, QrCode } from 'lucide-react';
+import { Book, BarChart3, Users } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -16,7 +16,7 @@ const Sidebar = () => {
         <div className="flex items-center flex-shrink-0 px-4 mb-5">
           <Link to="/" className="flex items-center">
             <Book className="w-8 h-8 text-library-primary" />
-            <span className="ml-2 text-xl font-bold text-gray-800">SchoolLibrary</span>
+            <span className="ml-2 text-xl font-bold text-gray-800">Biblioteca Escolar</span>
           </Link>
         </div>
         <div className="flex flex-col flex-grow">
@@ -34,7 +34,7 @@ const Sidebar = () => {
                 "mr-3 h-5 w-5",
                 isActive('/') ? "text-library-primary" : "text-gray-400 group-hover:text-gray-500"
               )} />
-              Dashboard
+              Panel Principal
             </Link>
             
             <Link
@@ -50,7 +50,7 @@ const Sidebar = () => {
                 "mr-3 h-5 w-5",
                 isActive('/students') ? "text-library-primary" : "text-gray-400 group-hover:text-gray-500"
               )} />
-              Students
+              Estudiantes
             </Link>
             
             <Link
@@ -66,23 +66,7 @@ const Sidebar = () => {
                 "mr-3 h-5 w-5",
                 isActive('/books') ? "text-library-primary" : "text-gray-400 group-hover:text-gray-500"
               )} />
-              Books
-            </Link>
-            
-            <Link
-              to="/scanner"
-              className={cn(
-                "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
-                isActive('/scanner')
-                  ? "bg-library-primary bg-opacity-10 text-library-primary"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              )}
-            >
-              <QrCode className={cn(
-                "mr-3 h-5 w-5",
-                isActive('/scanner') ? "text-library-primary" : "text-gray-400 group-hover:text-gray-500"
-              )} />
-              QR Scanner
+              Libros
             </Link>
           </nav>
         </div>

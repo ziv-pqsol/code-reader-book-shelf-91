@@ -25,19 +25,19 @@ const StudentsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Students</h1>
-          <p className="text-muted-foreground">Manage and view student information</p>
+          <h1 className="text-3xl font-bold tracking-tight">Estudiantes</h1>
+          <p className="text-muted-foreground">Gestionar y ver información de estudiantes</p>
         </div>
         <Button className="sm:self-end">
           <UserPlus className="mr-2 h-4 w-4" />
-          Add Student
+          Añadir Estudiante
         </Button>
       </div>
       
       <div className="relative">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search students by name, code or grade..."
+          placeholder="Buscar por nombre, código o grado..."
           className="pl-8"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -61,7 +61,7 @@ const StudentsPage = () => {
                       </div>
                       <p className="text-sm text-muted-foreground">{student.code}</p>
                       <div className="mt-4 space-y-1">
-                        <p className="text-sm font-medium">Books Borrowed: {studentBooks.length}</p>
+                        <p className="text-sm font-medium">Libros Prestados: {studentBooks.length}</p>
                         {studentBooks.length > 0 && (
                           <div className="space-y-1">
                             {studentBooks.slice(0, 2).map((book) => (
@@ -71,7 +71,7 @@ const StudentsPage = () => {
                             ))}
                             {studentBooks.length > 2 && (
                               <p className="text-xs text-library-primary">
-                                +{studentBooks.length - 2} more
+                                +{studentBooks.length - 2} más
                               </p>
                             )}
                           </div>
@@ -86,8 +86,8 @@ const StudentsPage = () => {
         ) : (
           <div className="col-span-full flex justify-center py-12">
             <div className="text-center">
-              <p className="text-lg font-semibold">No students found</p>
-              <p className="text-muted-foreground">Try adjusting your search query</p>
+              <p className="text-lg font-semibold">No se encontraron estudiantes</p>
+              <p className="text-muted-foreground">Intenta ajustar tu búsqueda</p>
             </div>
           </div>
         )}

@@ -29,18 +29,18 @@ const LoginPage = () => {
           <div className="mx-auto mb-4 flex items-center justify-center bg-library-primary bg-opacity-10 rounded-full p-3">
             <Book className="h-10 w-10 text-library-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold text-center">School Library</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Biblioteca Escolar</CardTitle>
           <CardDescription className="text-center">
-            Enter your credentials to access the library management system
+            Ingrese sus credenciales para acceder al sistema de gestión de biblioteca
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">Usuario</Label>
               <Input 
                 id="username"
-                placeholder="Username" 
+                placeholder="Usuario" 
                 type="text" 
                 value={username} 
                 onChange={(e) => setUsername(e.target.value)} 
@@ -48,10 +48,10 @@ const LoginPage = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Contraseña</Label>
               <Input 
                 id="password"
-                placeholder="Password" 
+                placeholder="Contraseña" 
                 type="password" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
@@ -62,13 +62,13 @@ const LoginPage = () => {
               <p className="text-sm text-red-500 text-center">{error}</p>
             )}
             <Button type="submit" className="w-full" variant="default">
-              Login
+              Iniciar Sesión
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-500">
-            Demo credentials: username: <span className="font-medium">admin</span>, password: <span className="font-medium">admin123</span>
+            Credenciales de demo: usuario: <span className="font-medium">admin</span>, contraseña: <span className="font-medium">admin123</span>
           </p>
         </CardFooter>
       </Card>

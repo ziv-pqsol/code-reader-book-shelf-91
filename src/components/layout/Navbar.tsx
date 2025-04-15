@@ -23,7 +23,6 @@ const Navbar = () => {
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Left - Mobile menu button */}
           <div className="flex md:hidden">
             <button
               type="button"
@@ -38,7 +37,6 @@ const Navbar = () => {
             </button>
           </div>
 
-          {/* Center - Search */}
           <div className="flex flex-1 justify-center px-2 lg:ml-6 lg:justify-start">
             <form onSubmit={handleSearch} className="w-full max-w-lg">
               <div className="relative">
@@ -47,7 +45,7 @@ const Navbar = () => {
                 </div>
                 <Input
                   className="block w-full rounded-md border-0 py-2 pl-10 pr-3 text-gray-900 shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-library-primary"
-                  placeholder="Search for books, students..."
+                  placeholder="Buscar libros, estudiantes..."
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -56,7 +54,6 @@ const Navbar = () => {
             </form>
           </div>
 
-          {/* Right - User menu */}
           <div className="flex items-center">
             <div className="flex items-center gap-4">
               <Button
@@ -72,14 +69,13 @@ const Navbar = () => {
                 onClick={logout}
                 className="text-sm"
               >
-                Logout
+                Cerrar Sesión
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu, show/hide based on state */}
       {mobileMenuOpen && (
         <div className="md:hidden">
           <div className="space-y-1 px-2 pb-3 pt-2">
@@ -91,7 +87,7 @@ const Navbar = () => {
                 setMobileMenuOpen(false);
               }}
             >
-              Dashboard
+              Panel Principal
             </Button>
             <Button 
               variant="ghost" 
@@ -101,7 +97,7 @@ const Navbar = () => {
                 setMobileMenuOpen(false);
               }}
             >
-              Students
+              Estudiantes
             </Button>
             <Button 
               variant="ghost" 
@@ -111,17 +107,7 @@ const Navbar = () => {
                 setMobileMenuOpen(false);
               }}
             >
-              Books
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start"
-              onClick={() => { 
-                navigate('/scanner');
-                setMobileMenuOpen(false);
-              }}
-            >
-              QR Scanner
+              Libros
             </Button>
           </div>
         </div>
