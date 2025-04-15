@@ -21,6 +21,7 @@ interface LibraryContextType {
     mostBorrowedBooks: Book[];
   };
   addBook: (book: Omit<Book, 'id'>) => void;
+  updateBook: (id: string, book: Partial<Book>) => void;
   addStudent: (student: Omit<Student, 'id'>) => void;
   isLoading: boolean;
 }
@@ -154,6 +155,54 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
       toast({
         title: "Error",
         description: "No se pudo añadir el estudiante",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Add update book mutation
+  const updateBookMutation = useMutation({
+    mutationFn: async ({ id, book }: { id: string, book: Partial<Book> }) => {
+      // Convert book data to Supabase format
+      const supabaseData = {
+        title: book.title,
+        author: book.author,
+        genre: book.genre,
+        code: book.code,
+        cover_url: book.coverUrl
+      };
+      
+      // Only include defined fields
+      const cleanedData = Object.fromEntries(
+        Object.entries(supabaseData).filter(([_, v]) => v !== undefined)
+      );
+      
+      const { data, error } = await supabase
+        .from('books')
+        .update(cleanedData)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error updating book:', error);
+        throw error;
+      }
+      
+      return mapSupabaseBook(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['books'] });
+      toast({
+        title: "Libro actualizado",
+        description: "El libro se ha actualizado correctamente",
+      });
+    },
+    onError: (error) => {
+      console.error("Update book error:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el libro",
         variant: "destructive",
       });
     }
@@ -320,6 +369,10 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
     addBookMutation.mutate(book);
   };
 
+  const updateBook = (id: string, book: Partial<Book>) => {
+    updateBookMutation.mutate({ id, book });
+  };
+
   const addStudent = (student: Omit<Student, 'id'>) => {
     addStudentMutation.mutate(student);
   };
@@ -340,6 +393,7 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
         getStudentBooks,
         getBookStats,
         addBook,
+        updateBook,
         addStudent,
         isLoading,
       }}

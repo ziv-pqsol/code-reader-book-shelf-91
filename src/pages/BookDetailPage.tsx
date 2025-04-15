@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
@@ -22,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from "@/hooks/use-toast";
+import EditBookDialog from '@/components/EditBookDialog';
 
 const BookDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -329,23 +329,12 @@ const BookDetailPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Book Dialog placeholder */}
-      <Dialog open={isEditBookOpen} onOpenChange={setIsEditBookOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Edit Book</DialogTitle>
-            <DialogDescription>
-              This feature is not implemented in the demo version.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="flex justify-end mt-4">
-            <Button variant="outline" onClick={() => setIsEditBookOpen(false)}>
-              Close
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Replace the placeholder EditBookDialog with our new component */}
+      <EditBookDialog 
+        open={isEditBookOpen} 
+        onOpenChange={setIsEditBookOpen} 
+        book={book}
+      />
     </div>
   );
 };
