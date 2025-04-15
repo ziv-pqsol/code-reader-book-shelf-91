@@ -1,7 +1,9 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { mockBooks, mockStudents } from '../data/mockData';
-import { Book, Student } from '../types';
+
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { Book, Student, mapSupabaseBook, mapSupabaseStudent, mapBookToSupabase, mapStudentToSupabase } from '../types';
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface LibraryContextType {
   books: Book[];
@@ -21,6 +23,7 @@ interface LibraryContextType {
   };
   addBook: (book: Omit<Book, 'id'>) => void;
   addStudent: (student: Omit<Student, 'id'>) => void;
+  isLoading: boolean;
 }
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined);
@@ -38,34 +41,226 @@ interface LibraryProviderProps {
 }
 
 export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) => {
-  const [books, setBooks] = useState<Book[]>(mockBooks);
-  const [students, setStudents] = useState<Student[]>(mockStudents);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  // Fetch books
+  const { 
+    data: books = [], 
+    isLoading: isBooksLoading,
+    error: booksError
+  } = useQuery({
+    queryKey: ['books'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('books')
+        .select('*');
+      
+      if (error) {
+        console.error('Error fetching books:', error);
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los libros",
+          variant: "destructive",
+        });
+        return [];
+      }
+      
+      return data.map(mapSupabaseBook);
+    }
+  });
 
-  const addBook = (book: Omit<Book, 'id'>) => {
-    const newBook: Book = {
-      ...book,
-      id: `book-${Date.now()}`,
-      available: true
-    };
-    setBooks(prev => [...prev, newBook]);
-    toast({
-      title: "Libro añadido",
-      description: "El libro se ha añadido correctamente",
-    });
-  };
+  // Fetch students
+  const { 
+    data: students = [], 
+    isLoading: isStudentsLoading,
+    error: studentsError 
+  } = useQuery({
+    queryKey: ['students'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('students')
+        .select('*');
+      
+      if (error) {
+        console.error('Error fetching students:', error);
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los estudiantes",
+          variant: "destructive",
+        });
+        return [];
+      }
+      
+      return data.map(mapSupabaseStudent);
+    }
+  });
 
-  const addStudent = (student: Omit<Student, 'id'>) => {
-    const newStudent: Student = {
-      ...student,
-      id: `student-${Date.now()}`
-    };
-    setStudents(prev => [...prev, newStudent]);
-    toast({
-      title: "Estudiante añadido",
-      description: "El estudiante se ha añadido correctamente",
-    });
-  };
+  // Add book mutation
+  const addBookMutation = useMutation({
+    mutationFn: async (book: Omit<Book, 'id'>) => {
+      const { data, error } = await supabase
+        .from('books')
+        .insert(mapBookToSupabase(book))
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error adding book:', error);
+        throw error;
+      }
+      
+      return mapSupabaseBook(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['books'] });
+      toast({
+        title: "Libro añadido",
+        description: "El libro se ha añadido correctamente",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "No se pudo añadir el libro",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Add student mutation
+  const addStudentMutation = useMutation({
+    mutationFn: async (student: Omit<Student, 'id'>) => {
+      const { data, error } = await supabase
+        .from('students')
+        .insert(mapStudentToSupabase(student))
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error adding student:', error);
+        throw error;
+      }
+      
+      return mapSupabaseStudent(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      toast({
+        title: "Estudiante añadido",
+        description: "El estudiante se ha añadido correctamente",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "No se pudo añadir el estudiante",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Borrow book mutation
+  const borrowBookMutation = useMutation({
+    mutationFn: async ({ bookId, studentId }: { bookId: string, studentId: string }) => {
+      const student = getStudentById(studentId);
+      if (!student) {
+        throw new Error("Estudiante no encontrado");
+      }
+      
+      const { data, error } = await supabase
+        .from('books')
+        .update({
+          available: false,
+          borrower_id: studentId,
+          borrower_name: student.name,
+          borrower_code: student.code
+        })
+        .eq('id', bookId)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error borrowing book:', error);
+        throw error;
+      }
+      
+      return mapSupabaseBook(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['books'] });
+      toast({
+        title: "Libro prestado",
+        description: "El libro se ha prestado correctamente",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "No se pudo prestar el libro",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Return book mutation
+  const returnBookMutation = useMutation({
+    mutationFn: async (bookId: string) => {
+      const { data, error } = await supabase
+        .from('books')
+        .update({
+          available: true,
+          borrower_id: null,
+          borrower_name: null,
+          borrower_code: null
+        })
+        .eq('id', bookId)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error returning book:', error);
+        throw error;
+      }
+      
+      return mapSupabaseBook(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['books'] });
+      toast({
+        title: "Libro devuelto",
+        description: "El libro se ha devuelto correctamente",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "No se pudo devolver el libro",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Handle API errors
+  useEffect(() => {
+    if (booksError) {
+      console.error('Books error:', booksError);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los libros",
+        variant: "destructive",
+      });
+    }
+    
+    if (studentsError) {
+      console.error('Students error:', studentsError);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los estudiantes",
+        variant: "destructive",
+      });
+    }
+  }, [booksError, studentsError, toast]);
 
   const getBookById = (id: string): Book | undefined => {
     return books.find(book => book.id === id);
@@ -96,40 +291,11 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
   };
 
   const borrowBook = (bookId: string, studentId: string): void => {
-    const student = getStudentById(studentId);
-    if (!student) return;
-
-    setBooks(prevBooks =>
-      prevBooks.map(book => {
-        if (book.id === bookId) {
-          return {
-            ...book,
-            available: false,
-            borrowerId: studentId,
-            borrowerName: student.name,
-            borrowerCode: student.code
-          };
-        }
-        return book;
-      })
-    );
+    borrowBookMutation.mutate({ bookId, studentId });
   };
 
   const returnBook = (bookId: string): void => {
-    setBooks(prevBooks =>
-      prevBooks.map(book => {
-        if (book.id === bookId) {
-          return {
-            ...book,
-            available: true,
-            borrowerId: undefined,
-            borrowerName: undefined,
-            borrowerCode: undefined
-          };
-        }
-        return book;
-      })
-    );
+    returnBookMutation.mutate(bookId);
   };
 
   const getStudentBooks = (studentId: string): Book[] => {
@@ -151,6 +317,16 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
     };
   };
 
+  const addBook = (book: Omit<Book, 'id'>) => {
+    addBookMutation.mutate(book);
+  };
+
+  const addStudent = (student: Omit<Student, 'id'>) => {
+    addStudentMutation.mutate(student);
+  };
+
+  const isLoading = isBooksLoading || isStudentsLoading;
+
   return (
     <LibraryContext.Provider
       value={{
@@ -166,6 +342,7 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
         getBookStats,
         addBook,
         addStudent,
+        isLoading,
       }}
     >
       {children}

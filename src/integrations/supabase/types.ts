@@ -9,7 +9,101 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      books: {
+        Row: {
+          author: string
+          available: boolean
+          borrower_code: string | null
+          borrower_id: string | null
+          borrower_name: string | null
+          code: string
+          cover_url: string | null
+          created_at: string
+          genre: string
+          id: string
+          title: string
+        }
+        Insert: {
+          author: string
+          available?: boolean
+          borrower_code?: string | null
+          borrower_id?: string | null
+          borrower_name?: string | null
+          code: string
+          cover_url?: string | null
+          created_at?: string
+          genre: string
+          id?: string
+          title: string
+        }
+        Update: {
+          author?: string
+          available?: boolean
+          borrower_code?: string | null
+          borrower_id?: string | null
+          borrower_name?: string | null
+          code?: string
+          cover_url?: string | null
+          created_at?: string
+          genre?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "books_borrower_id_fkey"
+            columns: ["borrower_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          code: string
+          created_at: string
+          grade: string
+          id: string
+          name: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          grade: string
+          id?: string
+          name: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          grade?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string
+          id: string
+          password: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          password: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          password?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
