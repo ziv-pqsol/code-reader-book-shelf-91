@@ -20,13 +20,13 @@ const Navbar = () => {
       navigate(`/search-results?q=${encodeURIComponent(searchQuery)}`);
       setSearchQuery('');
       toast({
-        title: "Search initiated",
-        description: `Searching for: ${searchQuery}`,
+        title: "Búsqueda iniciada",
+        description: `Buscando: ${searchQuery}`,
       });
     } else {
       toast({
-        title: "Empty search",
-        description: "Please enter a search term",
+        title: "Búsqueda vacía",
+        description: "Por favor ingresa un término de búsqueda",
         variant: "destructive",
       });
     }
@@ -73,8 +73,8 @@ const Navbar = () => {
               onClick={() => {
                 logout();
                 toast({
-                  title: "Logged out",
-                  description: "You have been logged out successfully",
+                  title: "Sesión cerrada",
+                  description: "Has cerrado sesión exitosamente",
                 });
               }}
               className="text-sm"

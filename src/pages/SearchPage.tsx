@@ -21,8 +21,8 @@ const SearchPage = () => {
       navigate(`/search-results?q=${encodeURIComponent(searchQuery)}`);
     } else {
       toast({
-        title: "Empty search",
-        description: "Please enter a search term",
+        title: "Búsqueda vacía",
+        description: "Por favor ingresa un término de búsqueda",
         variant: "destructive",
       });
     }
@@ -39,8 +39,8 @@ const SearchPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Search</h1>
-        <p className="text-muted-foreground">Search for books or students in the library</p>
+        <h1 className="text-3xl font-bold tracking-tight">Búsqueda</h1>
+        <p className="text-muted-foreground">Buscar libros o estudiantes en la biblioteca</p>
       </div>
 
       <Card>
@@ -52,13 +52,13 @@ const SearchPage = () => {
               </div>
               <Input
                 className="pl-10 py-6 text-lg"
-                placeholder="Search by book title, author, student name or code..."
+                placeholder="Buscar por título de libro, autor, nombre de estudiante o código..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <Button type="submit" className="w-full py-6" size="lg">
-              Search
+              Buscar
             </Button>
           </form>
         </CardContent>
@@ -72,8 +72,8 @@ const SearchPage = () => {
                 <BookOpen className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">Browse Books</h2>
-                <p className="text-muted-foreground">View all books in the library</p>
+                <h2 className="text-xl font-semibold">Explorar Libros</h2>
+                <p className="text-muted-foreground">Ver todos los libros en la biblioteca</p>
               </div>
             </div>
             <Button 
@@ -81,7 +81,7 @@ const SearchPage = () => {
               className="w-full" 
               onClick={() => handleQuickSearch('books')}
             >
-              Go to Books
+              Ir a Libros
             </Button>
           </CardContent>
         </Card>
@@ -93,8 +93,8 @@ const SearchPage = () => {
                 <User className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">Browse Students</h2>
-                <p className="text-muted-foreground">View all students in the system</p>
+                <h2 className="text-xl font-semibold">Explorar Estudiantes</h2>
+                <p className="text-muted-foreground">Ver todos los estudiantes en el sistema</p>
               </div>
             </div>
             <Button 
@@ -102,7 +102,7 @@ const SearchPage = () => {
               className="w-full" 
               onClick={() => handleQuickSearch('students')}
             >
-              Go to Students
+              Ir a Estudiantes
             </Button>
           </CardContent>
         </Card>
