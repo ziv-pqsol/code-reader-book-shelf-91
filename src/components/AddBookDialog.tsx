@@ -52,13 +52,15 @@ const formSchema = z.object({
   coverUrl: z.string().optional(),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 const AddBookDialog: React.FC<AddBookDialogProps> = ({
   open,
   onOpenChange,
 }) => {
   const { addBook } = useLibrary();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
@@ -69,11 +71,19 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: FormValues) {
+    // Ensure all required fields are explicitly set
     const book = {
       ...values,
       available: true,
+      // Guarantee that non-optional fields are present
+      title: values.title,
+      author: values.author,
+      code: values.code,
+      genre: values.genre,
+      // coverUrl is already optional in the Book type
     };
+    
     addBook(book);
     form.reset();
     onOpenChange(false);
