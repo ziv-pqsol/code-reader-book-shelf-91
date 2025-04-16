@@ -61,12 +61,7 @@ const BookLoadingAnimation = ({
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm">
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-1/4 left-1/4 w-1/2 h-1/2 bg-library-primary/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-1/2 h-1/2 bg-library-secondary/10 rounded-full blur-3xl"></div>
-      </div>
-      
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-white">
       <div className="w-full max-w-md px-6 flex flex-col items-center relative z-10">
         <div className="relative mb-12 group">
           {/* Book shadow */}

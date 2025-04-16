@@ -16,6 +16,14 @@ const LoginPage = () => {
   const { login, error, isAuthenticated, isLoginLoading } = useAuth();
   const navigate = useNavigate();
 
+  // Reset form state if login fails
+  useEffect(() => {
+    if (error && isLoginLoading === false) {
+      // Ensure input fields remain interactive if login fails
+      setShowAnimation(false);
+    }
+  }, [error, isLoginLoading]);
+
   useEffect(() => {
     // If already authenticated, redirect to dashboard
     if (isAuthenticated && !showAnimation) {
@@ -25,10 +33,13 @@ const LoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await login(username, password);
-    if (success) {
-      // Show animation before redirecting
-      setShowAnimation(true);
+    // Only proceed if we have username and password
+    if (username.trim() && password.trim()) {
+      const success = await login(username, password);
+      if (success) {
+        // Show animation before redirecting
+        setShowAnimation(true);
+      }
     }
   };
 
@@ -69,6 +80,8 @@ const LoginPage = () => {
                   onChange={(e) => setUsername(e.target.value)} 
                   required 
                   disabled={isLoginLoading || showAnimation}
+                  autoComplete="username"
+                  className="focus:ring-2 focus:ring-library-primary focus:border-library-primary"
                 />
               </div>
               <div className="space-y-2">
@@ -81,19 +94,26 @@ const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)} 
                   required 
                   disabled={isLoginLoading || showAnimation}
+                  autoComplete="current-password"
+                  className="focus:ring-2 focus:ring-library-primary focus:border-library-primary"
                 />
               </div>
               {error && (
                 <p className="text-sm text-red-500 text-center">{error}</p>
               )}
-              <Button type="submit" className="w-full" variant="default" disabled={isLoginLoading || showAnimation}>
+              <Button 
+                type="submit" 
+                className="w-full" 
+                variant="default" 
+                disabled={isLoginLoading || showAnimation || !username.trim() || !password.trim()}
+              >
                 {isLoginLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
               </Button>
             </form>
           </CardContent>
           <CardFooter className="flex justify-center">
             <p className="text-sm text-gray-500">
-            <span className="font-medium">Nota:</span> Contacte al administrador para obtener sus credenciales de acceso.
+              <span className="font-medium">Nota:</span> Contacte al administrador para obtener sus credenciales de acceso.
             </p>
           </CardFooter>
         </Card>

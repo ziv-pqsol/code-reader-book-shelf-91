@@ -10,7 +10,7 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   error: string | null;
-  isLoginLoading: boolean; // Add loading state for login
+  isLoginLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<{ username: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isLoginLoading, setIsLoginLoading] = useState<boolean>(false); // Add login loading state
+  const [isLoginLoading, setIsLoginLoading] = useState<boolean>(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -87,8 +87,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
+      // Clear any previous errors
       setError(null);
-      setIsLoginLoading(true); // Set loading to true when login starts
+      setIsLoginLoading(true);
       
       // Check credentials in users table
       const { data, error } = await supabase
@@ -99,13 +100,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (error || !data) {
         setError('Usuario o contraseña incorrectos');
-        setIsLoginLoading(false); // Reset loading state on error
+        setIsLoginLoading(false);
         return false;
       }
       
       if (data.password !== password) {
         setError('Usuario o contraseña incorrectos');
-        setIsLoginLoading(false); // Reset loading state on error
+        setIsLoginLoading(false);
         return false;
       }
       
@@ -125,14 +126,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         description: `Bienvenido, ${username}!`,
       });
       
-      // We do NOT navigate here immediately - leave the loading state active for the animation
-      // The LoginPage component will handle the redirect after the animation
       return true;
       
     } catch (err) {
       console.error('Error al iniciar sesión:', err);
       setError('Error al iniciar sesión');
-      setIsLoginLoading(false); // Reset loading state on error
+      setIsLoginLoading(false);
       return false;
     }
   };
@@ -153,7 +152,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         login,
         logout,
         error,
-        isLoginLoading, // Expose loading state
+        isLoginLoading,
       }}
     >
       {!isLoading && children}
