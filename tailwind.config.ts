@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -99,11 +100,40 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'book-flip': {
+					'0%': {
+						transform: 'rotateY(0deg)',
+						boxShadow: '0 0 5px rgba(0, 0, 0, 0.1)'
+					},
+					'100%': {
+						transform: 'rotateY(180deg)',
+						boxShadow: '-5px 0 5px rgba(0, 0, 0, 0.1)'
+					}
+				},
+				'bounce': {
+					'0%, 100%': {
+						transform: 'translateY(0)',
+					},
+					'50%': {
+						transform: 'translateY(-25%)'
+					}
+				},
+				'pulse': {
+					'0%, 100%': {
+						opacity: '1'
+					},
+					'50%': {
+						opacity: '0.5'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'book-flip': 'book-flip 0.6s ease-in-out forwards',
+				'bounce': 'bounce 1s ease-in-out infinite',
+				'pulse': 'pulse 1.5s ease-in-out infinite'
 			}
 		}
 	},
