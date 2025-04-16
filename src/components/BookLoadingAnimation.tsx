@@ -61,8 +61,13 @@ const BookLoadingAnimation = ({
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-white to-library-light/20 z-50">
-      <div className="w-full max-w-md px-6 flex flex-col items-center">
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm">
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-1/4 left-1/4 w-1/2 h-1/2 bg-library-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-1/2 h-1/2 bg-library-secondary/10 rounded-full blur-3xl"></div>
+      </div>
+      
+      <div className="w-full max-w-md px-6 flex flex-col items-center relative z-10">
         <div className="relative mb-12 group">
           {/* Book shadow */}
           <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-24 h-2 bg-black/10 rounded-full blur-md"></div>
@@ -78,13 +83,13 @@ const BookLoadingAnimation = ({
               strokeWidth={1.5} 
             />
             
-            {/* Sparkle effects */}
+            {/* Subtle Sparkle effects */}
             <Sparkles 
-              className="absolute -top-2 -right-2 h-6 w-6 text-library-light animate-pulse" 
+              className="absolute -top-2 -right-2 h-6 w-6 text-library-light/50 animate-pulse" 
               style={{ animationDelay: "200ms" }}
             />
             <Sparkles 
-              className="absolute bottom-0 -left-2 h-5 w-5 text-library-secondary animate-pulse" 
+              className="absolute bottom-0 -left-2 h-5 w-5 text-library-secondary/50 animate-pulse" 
               style={{ animationDelay: "500ms" }}
             />
           </div>
@@ -108,16 +113,7 @@ const BookLoadingAnimation = ({
                 transitionDelay: `${index * 100}ms`,
                 background: index % 2 === 0 ? 'white' : 'linear-gradient(to bottom, rgba(255,255,255,1), rgba(246,240,255,1))'
               }}
-            >
-              {/* Text lines on pages */}
-              {index % 2 === 0 && (
-                <div className="h-full w-full p-4 flex flex-col justify-center space-y-2">
-                  <div className="h-1 w-3/4 bg-library-light/50 rounded"></div>
-                  <div className="h-1 w-1/2 bg-library-light/50 rounded"></div>
-                  <div className="h-1 w-4/5 bg-library-light/50 rounded"></div>
-                </div>
-              )}
-            </div>
+            />
           ))}
         </div>
         
@@ -126,29 +122,12 @@ const BookLoadingAnimation = ({
             {getLoadingMessage()}
           </div>
           
-          {/* Stylish progress bar with gradient */}
+          {/* Minimalist progress bar */}
           <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden p-[1px]">
             <Progress 
               value={progress} 
               className="h-full w-full bg-gradient-to-r from-library-primary to-library-secondary rounded-full" 
             />
-          </div>
-          
-          {/* Animated dots with better spacing and timing */}
-          <div className="flex justify-center space-x-2 mt-2">
-            {[0, 1, 2].map((i) => (
-              <div 
-                key={i}
-                className={cn(
-                  "w-2 h-2 rounded-full bg-library-primary/80",
-                  progress > (i + 1) * 25 && "animate-bounce"
-                )}
-                style={{ 
-                  animationDelay: `${i * 150}ms`,
-                  animationDuration: "0.8s"
-                }}
-              />
-            ))}
           </div>
         </div>
       </div>
