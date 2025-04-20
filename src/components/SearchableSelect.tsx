@@ -17,7 +17,7 @@ interface SearchableSelectProps {
   triggerText: string;
 }
 
-const SearchableSelect = ({ items, placeholder, onSelect, triggerText }: SearchableSelectProps) => {
+const SearchableSelect = ({ items = [], placeholder, onSelect, triggerText }: SearchableSelectProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -33,17 +33,21 @@ const SearchableSelect = ({ items, placeholder, onSelect, triggerText }: Searcha
           <CommandInput placeholder={placeholder} />
           <CommandEmpty>No se encontraron resultados.</CommandEmpty>
           <CommandGroup className="max-h-64 overflow-auto">
-            {items.map((item) => (
-              <CommandItem
-                key={item.id}
-                onSelect={() => {
-                  onSelect(item.id);
-                  setOpen(false);
-                }}
-              >
-                {item.label}
-              </CommandItem>
-            ))}
+            {Array.isArray(items) && items.length > 0 ? (
+              items.map((item) => (
+                <CommandItem
+                  key={item.id}
+                  onSelect={() => {
+                    onSelect(item.id);
+                    setOpen(false);
+                  }}
+                >
+                  {item.label}
+                </CommandItem>
+              ))
+            ) : (
+              <CommandItem disabled>No hay elementos disponibles</CommandItem>
+            )}
           </CommandGroup>
         </Command>
       </PopoverContent>

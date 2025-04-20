@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
@@ -26,8 +27,8 @@ const StudentDetailPage = () => {
   const student = getStudentById(id || '');
   const studentBooks = getStudentBooks(id || '');
   
-  // Filter only available books
-  const availableBooks = books.filter(book => book.available);
+  // Filter only available books and ensure the books array exists
+  const availableBooks = Array.isArray(books) ? books.filter(book => book.available) : [];
   
   const handleAssignBook = () => {
     if (!selectedBookId) {
