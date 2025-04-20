@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useToast } from '@/hooks/use-toast';
 
 const BookGrid = ({ books }: { books: any[] }) => {
   const { deleteBook } = useLibrary();
