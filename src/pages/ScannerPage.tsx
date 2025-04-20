@@ -1,20 +1,16 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User, Book, Search, QrCode, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import ISBNScanner from '@/components/ISBNScanner';
+import BetterISBNScanner from '@/components/BetterISBNScanner';
 import AddBookDialog from '@/components/AddBookDialog';
 import { searchBookByISBN } from '@/services/openLibraryService';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Dialog,
-  DialogContent,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 const ScannerPage = () => {
   const navigate = useNavigate();
@@ -240,16 +236,14 @@ const ScannerPage = () => {
       </Tabs>
 
       {/* ISBN Scanner Modal */}
-      {showScanner && (
-        <Dialog open={showScanner} onOpenChange={setShowScanner}>
-          <DialogContent className="sm:max-w-[425px]">
-            <ISBNScanner 
-              onScan={handleScanISBN} 
-              onClose={() => setShowScanner(false)} 
-            />
-          </DialogContent>
-        </Dialog>
-      )}
+      <Dialog open={showScanner} onOpenChange={setShowScanner}>
+        <DialogContent className="sm:max-w-[425px]">
+          <BetterISBNScanner 
+            onScan={handleScanISBN} 
+            onClose={() => setShowScanner(false)} 
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Add Book Dialog */}
       <AddBookDialog

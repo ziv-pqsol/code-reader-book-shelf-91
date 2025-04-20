@@ -1,27 +1,19 @@
-
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, BookOpen, PlusCircle, User } from 'lucide-react';
 import { genreColors } from '@/data/mockData';
-import { 
+import SearchableSelect from '@/components/SearchableSelect';
+import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useToast } from "@/hooks/use-toast";
 
 const StudentDetailPage = () => {
@@ -203,29 +195,22 @@ const StudentDetailPage = () => {
           <DialogHeader>
             <DialogTitle>Asignar Libro</DialogTitle>
             <DialogDescription>
-              Selecciona un libro para asignar a este estudiante.
+              Busca y selecciona un libro para asignar a este estudiante.
             </DialogDescription>
           </DialogHeader>
           
           <div className="py-4">
-            <Select value={selectedBookId} onValueChange={setSelectedBookId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona un libro" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableBooks.length > 0 ? (
-                  availableBooks.map((book) => (
-                    <SelectItem key={book.id} value={book.id}>
-                      {book.title} - {book.isbn}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="none" disabled>
-                    No hay libros disponibles
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              items={availableBooks.map(book => ({
+                id: book.id,
+                label: `${book.title} - ${book.isbn}`
+              }))}
+              placeholder="Buscar libro por título o ISBN..."
+              onSelect={setSelectedBookId}
+              triggerText={selectedBookId 
+                ? availableBooks.find(b => b.id === selectedBookId)?.title || "Seleccionar libro"
+                : "Seleccionar libro"}
+            />
           </div>
           
           <div className="flex justify-end space-x-2">
