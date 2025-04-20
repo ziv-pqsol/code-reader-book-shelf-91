@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -30,6 +31,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Genre } from "@/types";
+import { QrCode, Search, Book } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import ISBNScanner from "./ISBNScanner";
+import { searchBookByISBN, getCoverUrl, formatAuthor, mapGenre } from "@/services/openLibraryService";
 
 interface AddBookDialogProps {
   open: boolean;
@@ -45,8 +50,8 @@ const formSchema = z.object({
   author: z.string().min(1, {
     message: "El autor es obligatorio.",
   }),
-  code: z.string().min(1, {
-    message: "El código del libro es obligatorio.",
+  isbn: z.string().min(1, {
+    message: "El ISBN es obligatorio.",
   }),
   genre: z.enum(["literatura", "ficción", "ciencia", "historia", "arte"] as const),
   coverUrl: z.string().optional(),
@@ -59,19 +64,22 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
   onOpenChange,
 }) => {
   const { addBook } = useLibrary();
+  const { toast } = useToast();
+  const [showScanner, setShowScanner] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       author: "",
-      code: "",
+      isbn: "",
       genre: "literatura",
       coverUrl: "",
     },
   });
 
-  function onSubmit(values: FormValues) {
+  async function onSubmit(values: FormValues) {
     // Ensure all required fields are explicitly set
     const book = {
       ...values,
@@ -79,7 +87,7 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
       // Guarantee that non-optional fields are present
       title: values.title,
       author: values.author,
-      code: values.code,
+      isbn: values.isbn,
       genre: values.genre,
       // coverUrl is already optional in the Book type
     };
@@ -87,6 +95,80 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
     addBook(book);
     form.reset();
     onOpenChange(false);
+  }
+
+  const handleScanISBN = (isbn: string) => {
+    setShowScanner(false);
+    form.setValue("isbn", isbn);
+    searchBookInfo(isbn);
+  };
+
+  const searchBookInfo = async (isbn: string) => {
+    setLoading(true);
+    
+    try {
+      const bookData = await searchBookByISBN(isbn);
+      
+      if (bookData) {
+        // Fill form with book data
+        form.setValue("title", bookData.title || "");
+        form.setValue("author", formatAuthor(bookData.author_name) || "");
+        
+        if (bookData.subject && bookData.subject.length > 0) {
+          form.setValue("genre", mapGenre(bookData.subject));
+        }
+        
+        if (bookData.cover_i) {
+          form.setValue("coverUrl", getCoverUrl(bookData.cover_i) || "");
+        }
+        
+        toast({
+          title: "Información encontrada",
+          description: "Se ha encontrado información del libro.",
+        });
+      } else {
+        toast({
+          title: "Libro no encontrado",
+          description: "No se encontró información para el ISBN proporcionado. Por favor, complete los detalles manualmente.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error searching book:", error);
+      toast({
+        title: "Error",
+        description: "Hubo un error al buscar la información del libro.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearchClick = () => {
+    const isbn = form.getValues("isbn");
+    if (isbn) {
+      searchBookInfo(isbn);
+    } else {
+      toast({
+        title: "ISBN requerido",
+        description: "Por favor, ingrese un ISBN para buscar.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (showScanner) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[425px]">
+          <ISBNScanner 
+            onScan={handleScanISBN} 
+            onClose={() => setShowScanner(false)} 
+          />
+        </DialogContent>
+      </Dialog>
+    );
   }
 
   return (
@@ -100,6 +182,38 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="isbn"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>ISBN</FormLabel>
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <Input placeholder="Ej: 9780123456789" {...field} />
+                    </FormControl>
+                    <Button 
+                      type="button" 
+                      size="icon" 
+                      variant="outline" 
+                      onClick={() => setShowScanner(true)}
+                    >
+                      <QrCode className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      type="button" 
+                      size="icon" 
+                      variant="outline" 
+                      onClick={handleSearchClick}
+                      disabled={loading}
+                    >
+                      <Search className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="title"
@@ -128,24 +242,11 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
             />
             <FormField
               control={form.control}
-              name="code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Código</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: B12345" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="genre"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Género</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecciona un género" />
@@ -177,7 +278,7 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
               )}
             />
             <DialogFooter>
-              <Button type="submit">Guardar</Button>
+              <Button type="submit" disabled={loading}>Guardar</Button>
             </DialogFooter>
           </form>
         </Form>

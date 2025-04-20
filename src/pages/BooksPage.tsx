@@ -2,14 +2,16 @@
 import { useState, useEffect } from 'react';
 import { useLibrary } from '@/context/LibraryContext';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, PlusCircle, BookOpen, User } from 'lucide-react';
+import { Search, PlusCircle, BookOpen, User, QrCode } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { genreColors } from '@/data/mockData';
 import AddBookDialog from '@/components/AddBookDialog';
+import ISBNScanner from '@/components/ISBNScanner';
 
 const BooksPage = () => {
   const { books, searchBooks } = useLibrary();
@@ -20,6 +22,7 @@ const BooksPage = () => {
   const [filteredBooks, setFilteredBooks] = useState(books);
   const [activeTab, setActiveTab] = useState(initialFilter);
   const [isAddBookOpen, setIsAddBookOpen] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
   
   useEffect(() => {
     let result = books;
@@ -43,6 +46,11 @@ const BooksPage = () => {
     setFilteredBooks(result);
   }, [searchQuery, books, activeTab, searchBooks]);
   
+  const handleScanISBN = (isbn: string) => {
+    setShowScanner(false);
+    setSearchQuery(isbn);
+  };
+  
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
@@ -56,14 +64,24 @@ const BooksPage = () => {
         </Button>
       </div>
       
-      <div className="relative">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Buscar por título, autor o código..."
-          className="pl-8"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+      <div className="relative flex gap-2">
+        <div className="relative flex-grow">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por título, autor o ISBN..."
+            className="pl-8"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyUp={(e) => e.key === 'Enter' && setSearchQuery(e.currentTarget.value)}
+          />
+        </div>
+        <Button 
+          variant="outline" 
+          size="icon"
+          onClick={() => setShowScanner(true)}
+        >
+          <QrCode className="h-4 w-4" />
+        </Button>
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -90,6 +108,18 @@ const BooksPage = () => {
         open={isAddBookOpen}
         onOpenChange={setIsAddBookOpen}
       />
+      
+      {/* ISBN Scanner Modal */}
+      {showScanner && (
+        <Dialog open={showScanner} onOpenChange={setShowScanner}>
+          <DialogContent className="sm:max-w-[425px]">
+            <ISBNScanner 
+              onScan={handleScanISBN} 
+              onClose={() => setShowScanner(false)} 
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
@@ -131,6 +161,7 @@ const BookGrid = ({ books }: { books: any[] }) => {
                     </Badge>
                     <h3 className="font-semibold line-clamp-2">{book.title}</h3>
                     <p className="text-sm text-muted-foreground mb-2">{book.author}</p>
+                    <p className="text-xs text-muted-foreground">ISBN: {book.isbn}</p>
                   </div>
                   <div className="mt-auto flex items-center">
                     {book.available ? (

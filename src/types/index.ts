@@ -11,7 +11,7 @@ export type Genre =
 // Map Supabase books table to our Book interface
 export interface Book {
   id: string;
-  code: string;
+  isbn: string;  // Changed from 'code' to 'isbn'
   title: string;
   author: string;
   genre: Genre;
@@ -38,7 +38,7 @@ export interface User {
 export function mapSupabaseBook(book: Database['public']['Tables']['books']['Row']): Book {
   return {
     id: book.id,
-    code: book.code,
+    isbn: book.code,  // Map 'code' to 'isbn'
     title: book.title,
     author: book.author,
     genre: book.genre as Genre,
@@ -63,7 +63,7 @@ export function mapSupabaseStudent(student: Database['public']['Tables']['studen
 // Helper function to map our Book interface to Supabase book insert type
 export function mapBookToSupabase(book: Omit<Book, 'id'>): Database['public']['Tables']['books']['Insert'] {
   return {
-    code: book.code,
+    code: book.isbn,  // Map 'isbn' to 'code'
     title: book.title,
     author: book.author,
     genre: book.genre,
@@ -82,4 +82,24 @@ export function mapStudentToSupabase(student: Omit<Student, 'id'>): Database['pu
     code: student.code,
     grade: student.grade
   };
+}
+
+// Open Library API response interfaces
+export interface OpenLibraryResponse {
+  isbn: string;
+  title?: string;
+  author_name?: string[];
+  first_publish_year?: number;
+  cover_i?: number;
+  subject?: string[];
+  docs?: OpenLibraryDoc[];
+}
+
+export interface OpenLibraryDoc {
+  title: string;
+  author_name?: string[];
+  first_publish_year?: number;
+  cover_i?: number;
+  isbn?: string[];
+  subject?: string[];
 }

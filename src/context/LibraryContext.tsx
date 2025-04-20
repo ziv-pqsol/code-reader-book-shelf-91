@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { Book, Student, mapSupabaseBook, mapSupabaseStudent, mapBookToSupabase, mapStudentToSupabase } from '../types';
 import { useToast } from "@/hooks/use-toast";
@@ -168,7 +169,7 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
         title: book.title,
         author: book.author,
         genre: book.genre,
-        code: book.code,
+        code: book.isbn, // Use isbn for code field in database
         cover_url: book.coverUrl
       };
       
@@ -324,7 +325,7 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
       book =>
         book.title.toLowerCase().includes(lowerQuery) ||
         book.author.toLowerCase().includes(lowerQuery) ||
-        book.code.toLowerCase().includes(lowerQuery)
+        book.isbn.toLowerCase().includes(lowerQuery)
     );
   };
 
