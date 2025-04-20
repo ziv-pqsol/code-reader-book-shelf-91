@@ -11,6 +11,10 @@ import ISBNScanner from '@/components/ISBNScanner';
 import AddBookDialog from '@/components/AddBookDialog';
 import { searchBookByISBN } from '@/services/openLibraryService';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog';
 
 const ScannerPage = () => {
   const navigate = useNavigate();

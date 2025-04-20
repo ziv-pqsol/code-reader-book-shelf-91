@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
@@ -115,7 +114,7 @@ const BookDetailPage = () => {
                 <div className="pt-4 space-y-3 border-t">
                   <div className="flex justify-between">
                     <p className="text-muted-foreground">Código del Libro</p>
-                    <p className="font-medium">{book.code}</p>
+                    <p className="font-medium">{book.isbn}</p>
                   </div>
                   <div className="flex justify-between">
                     <p className="text-muted-foreground">Estado</p>

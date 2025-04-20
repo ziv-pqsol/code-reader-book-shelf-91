@@ -1,3 +1,4 @@
+
 import { Student, Book, User, Genre } from '../types';
 
 export const mockStudents: Student[] = [
@@ -66,7 +67,7 @@ export const mockStudents: Student[] = [
 export const mockBooks: Book[] = [
   {
     id: '1',
-    code: 'B12345',
+    isbn: 'B12345',
     title: 'Matar un Ruiseñor',
     author: 'Harper Lee',
     genre: 'literatura',
@@ -75,7 +76,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '2',
-    code: 'B12346',
+    isbn: 'B12346',
     title: '1984',
     author: 'George Orwell',
     genre: 'ficción',
@@ -87,7 +88,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '3',
-    code: 'B12347',
+    isbn: 'B12347',
     title: 'El Gran Gatsby',
     author: 'F. Scott Fitzgerald',
     genre: 'literatura',
@@ -96,7 +97,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '4',
-    code: 'B12348',
+    isbn: 'B12348',
     title: 'Una Breve Historia del Tiempo',
     author: 'Stephen Hawking',
     genre: 'ciencia',
@@ -105,7 +106,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '5',
-    code: 'B12349',
+    isbn: 'B12349',
     title: 'Orgullo y Prejuicio',
     author: 'Jane Austen',
     genre: 'literatura',
@@ -117,7 +118,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '6',
-    code: 'B12350',
+    isbn: 'B12350',
     title: 'El Hobbit',
     author: 'J.R.R. Tolkien',
     genre: 'ficción',
@@ -126,7 +127,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '7',
-    code: 'B12351',
+    isbn: 'B12351',
     title: 'El Origen de las Especies',
     author: 'Charles Darwin',
     genre: 'ciencia',
@@ -138,7 +139,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '8',
-    code: 'B12352',
+    isbn: 'B12352',
     title: 'El Arte de la Guerra',
     author: 'Sun Tzu',
     genre: 'historia',
@@ -147,7 +148,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '9',
-    code: 'B12353',
+    isbn: 'B12353',
     title: 'La Ilíada',
     author: 'Homer',
     genre: 'literatura',
@@ -156,7 +157,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '10',
-    code: 'B12354',
+    isbn: 'B12354',
     title: 'El Alquimista',
     author: 'Paulo Coelho',
     genre: 'ficción',
@@ -168,7 +169,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '11',
-    code: 'B12355',
+    isbn: 'B12355',
     title: 'Sapiens: Una Breve Historia de la Humanidad',
     author: 'Yuval Noah Harari',
     genre: 'historia',
@@ -177,7 +178,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '12',
-    code: 'B12356',
+    isbn: 'B12356',
     title: 'Hamlet',
     author: 'William Shakespeare',
     genre: 'literatura',
@@ -186,7 +187,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '13',
-    code: 'B12357',
+    isbn: 'B12357',
     title: 'Pensar rápido, pensar despacio',
     author: 'Daniel Kahneman',
     genre: 'ciencia',
@@ -195,7 +196,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '14',
-    code: 'B12358',
+    isbn: 'B12358',
     title: 'Guerra y Paz',
     author: 'Leo Tolstoy',
     genre: 'literatura',
@@ -207,7 +208,7 @@ export const mockBooks: Book[] = [
   },
   {
     id: '15',
-    code: 'B12359',
+    isbn: 'B12359',
     title: 'Los elementos del estilo',
     author: 'William Strunk Jr.',
     genre: 'arte',

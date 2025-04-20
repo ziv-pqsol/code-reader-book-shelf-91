@@ -148,7 +148,7 @@ const StudentDetailPage = () => {
                               </Badge>
                               <h3 className="font-semibold">{book.title}</h3>
                               <p className="text-sm text-muted-foreground">{book.author}</p>
-                              <p className="text-sm mt-2">Código: {book.code}</p>
+                              <p className="text-sm mt-2">Código: {book.isbn}</p>
                             </div>
                             <div className="flex flex-col space-y-2">
                               <Button 
@@ -216,7 +216,7 @@ const StudentDetailPage = () => {
                 {availableBooks.length > 0 ? (
                   availableBooks.map((book) => (
                     <SelectItem key={book.id} value={book.id}>
-                      {book.title} - {book.code}
+                      {book.title} - {book.isbn}
                     </SelectItem>
                   ))
                 ) : (
