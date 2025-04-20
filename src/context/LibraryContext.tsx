@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { Book, Student, mapSupabaseBook, mapSupabaseStudent, mapBookToSupabase, mapStudentToSupabase } from '../types';
 import { useToast } from "@/hooks/use-toast";
@@ -25,6 +24,8 @@ interface LibraryContextType {
   updateBook: (id: string, book: Partial<Book>) => void;
   addStudent: (student: Omit<Student, 'id'>) => void;
   isLoading: boolean;
+  deleteStudent: (id: string) => void;
+  deleteBook: (id: string) => void;
 }
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined);
@@ -290,6 +291,56 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
     }
   });
 
+  // Delete student mutation
+  const deleteStudentMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('students')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('Error deleting student:', error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el estudiante",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Delete book mutation
+  const deleteBookMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('books')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('Error deleting book:', error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['books'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el libro",
+        variant: "destructive",
+      });
+    }
+  });
+
   // Handle API errors
   useEffect(() => {
     if (booksError) {
@@ -378,6 +429,14 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
     addStudentMutation.mutate(student);
   };
 
+  const deleteStudent = (id: string) => {
+    deleteStudentMutation.mutate(id);
+  };
+
+  const deleteBook = (id: string) => {
+    deleteBookMutation.mutate(id);
+  };
+
   const isLoading = isBooksLoading || isStudentsLoading;
 
   return (
@@ -397,6 +456,8 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
         updateBook,
         addStudent,
         isLoading,
+        deleteStudent,
+        deleteBook,
       }}
     >
       {children}

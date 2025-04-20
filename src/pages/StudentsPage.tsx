@@ -1,19 +1,31 @@
-
 import { useState, useEffect } from 'react';
 import { useLibrary } from '@/context/LibraryContext';
 import { Link } from 'react-router-dom';
-import { Search, UserPlus } from 'lucide-react';
+import { Search, UserPlus, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import AddStudentDialog from '@/components/AddStudentDialog';
+import { useToast } from '@/hooks/use-toast';
 
 const StudentsPage = () => {
-  const { students, searchStudents, getStudentBooks } = useLibrary();
+  const { students, searchStudents, getStudentBooks, deleteStudent } = useLibrary();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredStudents, setFilteredStudents] = useState(students);
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
+
+  const { toast } = useToast();
   
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -22,6 +34,21 @@ const StudentsPage = () => {
       setFilteredStudents(students);
     }
   }, [searchQuery, students, searchStudents]);
+
+  const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
+  
+  const handleDeleteStudent = (studentId: string) => {
+    const studentBooks = getStudentBooks(studentId);
+    if (studentBooks.length > 0) {
+      toast({
+        title: "No se puede eliminar",
+        description: "El estudiante tiene libros prestados. Devuélvalos primero.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setStudentToDelete(studentId);
+  };
   
   return (
     <div className="space-y-6">
@@ -51,17 +78,25 @@ const StudentsPage = () => {
           filteredStudents.map((student) => {
             const studentBooks = getStudentBooks(student.id);
             return (
-              <Link key={student.id} to={`/students/${student.id}`}>
-                <Card className="overflow-hidden transition-shadow hover:shadow-md">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col space-y-1.5">
-                      <div className="flex items-center justify-between">
+              <Card key={student.id} className="overflow-hidden transition-shadow hover:shadow-md">
+                <CardContent className="p-6">
+                  <div className="flex flex-col space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Link to={`/students/${student.id}`} className="flex-grow">
                         <h3 className="text-lg font-semibold">{student.name}</h3>
-                        <Badge variant="outline" className="ml-2">
-                          {student.grade}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{student.code}</p>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleDeleteStudent(student.id);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{student.code}</p>
                       <div className="mt-4 space-y-1">
                         <p className="text-sm font-medium">Libros Prestados: {studentBooks.length}</p>
                         {studentBooks.length > 0 && (
@@ -79,10 +114,9 @@ const StudentsPage = () => {
                           </div>
                         )}
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                  </div>
+                </CardContent>
+              </Card>
             );
           })
         ) : (
@@ -99,6 +133,35 @@ const StudentsPage = () => {
         open={isAddStudentOpen}
         onOpenChange={setIsAddStudentOpen}
       />
+
+      <AlertDialog open={!!studentToDelete} onOpenChange={() => setStudentToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Esto eliminará permanentemente al estudiante.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (studentToDelete) {
+                  deleteStudent(studentToDelete);
+                  setStudentToDelete(null);
+                  toast({
+                    title: "Estudiante eliminado",
+                    description: "El estudiante ha sido eliminado exitosamente",
+                  });
+                }
+              }}
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

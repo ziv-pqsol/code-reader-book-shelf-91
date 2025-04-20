@@ -1,16 +1,18 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu, X, QrCode, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import BetterISBNScanner from '@/components/BetterISBNScanner';
 
 const Navbar = () => {
   const { logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showScanner, setShowScanner] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -30,6 +32,12 @@ const Navbar = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleScanISBN = (isbn: string) => {
+    setShowScanner(false);
+    setSearchQuery(isbn);
+    navigate(`/search-results?q=${encodeURIComponent(isbn)}`);
   };
 
   return (
@@ -52,17 +60,28 @@ const Navbar = () => {
 
           <div className="flex flex-1 justify-center px-2 lg:ml-6 lg:justify-start">
             <form onSubmit={handleSearch} className="w-full max-w-lg">
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Search className="h-4 w-4 text-gray-400" />
+              <div className="relative flex gap-2">
+                <div className="relative flex-grow">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <Search className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <Input
+                    className="block w-full rounded-md border-0 py-2 pl-10 pr-3 text-gray-900 shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-library-primary"
+                    placeholder="Buscar libros, estudiantes..."
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
                 </div>
-                <Input
-                  className="block w-full rounded-md border-0 py-2 pl-10 pr-3 text-gray-900 shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-library-primary"
-                  placeholder="Buscar libros, estudiantes..."
-                  type="search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                <Button 
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setShowScanner(true)}
+                >
+                  <QrCode className="h-4 w-4" />
+                </Button>
+                <Button type="submit">Buscar</Button>
               </div>
             </form>
           </div>
@@ -131,6 +150,16 @@ const Navbar = () => {
           </div>
         </div>
       )}
+
+      {/* Scanner Dialog */}
+      <Dialog open={showScanner} onOpenChange={setShowScanner}>
+        <DialogContent className="sm:max-w-[425px]">
+          <BetterISBNScanner 
+            onScan={handleScanISBN}
+            onClose={() => setShowScanner(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </header>
   );
 };
