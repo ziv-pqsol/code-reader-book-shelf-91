@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const StudentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { getStudentById, getStudentBooks, returnBook, books, borrowBook } = useLibrary();
   const [isAssignBookOpen, setIsAssignBookOpen] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string>('');
@@ -28,16 +30,18 @@ const StudentDetailPage = () => {
   const studentBooks = getStudentBooks(id || '');
   
   // Filter available books based on search
-  const availableBooks = Array.isArray(books) 
-    ? books.filter(book => {
-        const searchLower = searchQuery.toLowerCase();
-        return book.available && (
-          book.title.toLowerCase().includes(searchLower) ||
-          book.author.toLowerCase().includes(searchLower) ||
-          book.isbn.toLowerCase().includes(searchLower)
-        );
-      })
-    : [];
+  const availableBooks = books ? books.filter(book => {
+    if (!book.available) return false;
+    
+    if (!searchQuery) return true;
+    
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      book.title.toLowerCase().includes(searchLower) ||
+      book.author.toLowerCase().includes(searchLower) ||
+      book.isbn.toLowerCase().includes(searchLower)
+    );
+  }) : [];
   
   const handleAssignBook = () => {
     if (!selectedBookId) {
@@ -221,7 +225,10 @@ const StudentDetailPage = () => {
                 ? availableBooks.find(b => b.id === selectedBookId)?.title || "Seleccionar libro"
                 : "Seleccionar libro"}
               searchText={searchQuery}
-              onAddNew={() => setIsAssignBookOpen(false)}
+              onAddNew={() => {
+                setIsAssignBookOpen(false);
+                navigate('/books?action=add');
+              }}
             />
           </div>
           

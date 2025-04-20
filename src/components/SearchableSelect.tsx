@@ -30,6 +30,9 @@ const SearchableSelect = ({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState(searchText);
 
+  // Ensure items is always an array
+  const safeItems = Array.isArray(items) ? items : [];
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -64,8 +67,8 @@ const SearchableSelect = ({
             )}
           </CommandEmpty>
           <CommandGroup className="max-h-64 overflow-auto">
-            {Array.isArray(items) && items.length > 0 ? (
-              items.map((item) => (
+            {safeItems.length > 0 ? (
+              safeItems.map((item) => (
                 <CommandItem
                   key={item.id}
                   onSelect={() => {

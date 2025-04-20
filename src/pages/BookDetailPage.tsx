@@ -13,13 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useToast } from "@/hooks/use-toast";
 import EditBookDialog from '@/components/EditBookDialog';
 import SearchableSelect from '@/components/SearchableSelect';
@@ -73,16 +66,15 @@ const BookDetailPage = () => {
     });
   };
 
-    // Filter students based on search
-    const availableStudents = Array.isArray(students) 
-    ? students.filter(student => {
-        const searchLower = searchQuery.toLowerCase();
-        return (
-          student.name.toLowerCase().includes(searchLower) ||
-          student.code.toLowerCase().includes(searchLower)
-        );
-      })
-    : [];
+  // Filter students based on search
+  const availableStudents = students ? students.filter(student => {
+    if (!searchQuery) return true;
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      student.name.toLowerCase().includes(searchLower) ||
+      student.code.toLowerCase().includes(searchLower)
+    );
+  }) : [];
   
   return (
     <div className="space-y-6">
@@ -181,7 +173,7 @@ const BookDetailPage = () => {
                   <div>
                     <h3 className="font-medium mb-4">El libro puede ser asignado a:</h3>
                     <div className="grid gap-2 md:grid-cols-2">
-                      {students.slice(0, 4).map((student) => (
+                      {students && students.slice(0, 4).map((student) => (
                         <Card key={student.id} className="overflow-hidden">
                           <Button 
                             variant="ghost" 
@@ -204,7 +196,7 @@ const BookDetailPage = () => {
                       ))}
                     </div>
                     
-                    {students.length > 4 && (
+                    {students && students.length > 4 && (
                       <div className="mt-2 text-center">
                         <Button 
                           variant="link"
@@ -324,7 +316,7 @@ const BookDetailPage = () => {
               searchText={searchQuery}
               onAddNew={() => {
                 setIsAssignStudentOpen(false);
-                // Here you can navigate to the add student form or open the add student dialog
+                navigate('/students?action=add');
               }}
             />
           </div>
