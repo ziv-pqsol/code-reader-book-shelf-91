@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
@@ -23,12 +22,22 @@ const StudentDetailPage = () => {
   const [isAssignBookOpen, setIsAssignBookOpen] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string>('');
   const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState('');
   
   const student = getStudentById(id || '');
   const studentBooks = getStudentBooks(id || '');
   
-  // Filter only available books and ensure the books array exists
-  const availableBooks = Array.isArray(books) ? books.filter(book => book.available) : [];
+  // Filter available books based on search
+  const availableBooks = Array.isArray(books) 
+    ? books.filter(book => {
+        const searchLower = searchQuery.toLowerCase();
+        return book.available && (
+          book.title.toLowerCase().includes(searchLower) ||
+          book.author.toLowerCase().includes(searchLower) ||
+          book.isbn.toLowerCase().includes(searchLower)
+        );
+      })
+    : [];
   
   const handleAssignBook = () => {
     if (!selectedBookId) {
@@ -211,6 +220,8 @@ const StudentDetailPage = () => {
               triggerText={selectedBookId 
                 ? availableBooks.find(b => b.id === selectedBookId)?.title || "Seleccionar libro"
                 : "Seleccionar libro"}
+              searchText={searchQuery}
+              onAddNew={() => setIsAssignBookOpen(false)}
             />
           </div>
           

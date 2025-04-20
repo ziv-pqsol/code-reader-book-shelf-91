@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 
 interface Item {
   id: string;
@@ -15,10 +15,20 @@ interface SearchableSelectProps {
   placeholder: string;
   onSelect: (id: string) => void;
   triggerText: string;
+  onAddNew?: () => void;
+  searchText?: string;
 }
 
-const SearchableSelect = ({ items = [], placeholder, onSelect, triggerText }: SearchableSelectProps) => {
+const SearchableSelect = ({ 
+  items = [], 
+  placeholder, 
+  onSelect, 
+  triggerText,
+  onAddNew,
+  searchText = ""
+}: SearchableSelectProps) => {
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState(searchText);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -30,8 +40,29 @@ const SearchableSelect = ({ items = [], placeholder, onSelect, triggerText }: Se
       </PopoverTrigger>
       <PopoverContent className="p-0" side="bottom" align="start">
         <Command>
-          <CommandInput placeholder={placeholder} />
-          <CommandEmpty>No se encontraron resultados.</CommandEmpty>
+          <CommandInput 
+            placeholder={placeholder} 
+            value={search}
+            onValueChange={setSearch}
+          />
+          <CommandEmpty className="p-2">
+            <div className="text-sm text-muted-foreground py-2 text-center">
+              No se encontraron resultados
+            </div>
+            {onAddNew && (
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                onClick={() => {
+                  onAddNew();
+                  setOpen(false);
+                }}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Añadir Nuevo
+              </Button>
+            )}
+          </CommandEmpty>
           <CommandGroup className="max-h-64 overflow-auto">
             {Array.isArray(items) && items.length > 0 ? (
               items.map((item) => (

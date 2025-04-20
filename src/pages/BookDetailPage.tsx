@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from "@/hooks/use-toast";
 import EditBookDialog from '@/components/EditBookDialog';
+import SearchableSelect from '@/components/SearchableSelect';
 
 const BookDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,7 +32,8 @@ const BookDetailPage = () => {
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
   const { toast } = useToast();
   const navigate = useNavigate();
-  
+  const [searchQuery, setSearchQuery] = useState('');
+
   const book = getBookById(id || '');
   
   if (!book) {
@@ -70,6 +72,17 @@ const BookDetailPage = () => {
       description: "El libro ha sido asignado correctamente al estudiante",
     });
   };
+
+    // Filter students based on search
+    const availableStudents = Array.isArray(students) 
+    ? students.filter(student => {
+        const searchLower = searchQuery.toLowerCase();
+        return (
+          student.name.toLowerCase().includes(searchLower) ||
+          student.code.toLowerCase().includes(searchLower)
+        );
+      })
+    : [];
   
   return (
     <div className="space-y-6">
@@ -293,29 +306,27 @@ const BookDetailPage = () => {
           <DialogHeader>
             <DialogTitle>Asignar Libro a Estudiante</DialogTitle>
             <DialogDescription>
-              Selecciona un estudiante para asignarle este libro.
+              Busca y selecciona un estudiante para asignarle este libro.
             </DialogDescription>
           </DialogHeader>
           
           <div className="py-4">
-            <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona un estudiante" />
-              </SelectTrigger>
-              <SelectContent>
-                {students.length > 0 ? (
-                  students.map((student) => (
-                    <SelectItem key={student.id} value={student.id}>
-                      {student.name} - {student.code}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="none" disabled>
-                    No hay estudiantes disponibles
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              items={availableStudents.map(student => ({
+                id: student.id,
+                label: `${student.name} - ${student.code}`
+              }))}
+              placeholder="Buscar estudiante por nombre o código..."
+              onSelect={setSelectedStudentId}
+              triggerText={selectedStudentId 
+                ? availableStudents.find(s => s.id === selectedStudentId)?.name || "Seleccionar estudiante"
+                : "Seleccionar estudiante"}
+              searchText={searchQuery}
+              onAddNew={() => {
+                setIsAssignStudentOpen(false);
+                // Here you can navigate to the add student form or open the add student dialog
+              }}
+            />
           </div>
           
           <div className="flex justify-end space-x-2">
