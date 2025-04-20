@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef } from 'react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { QrCode, Book, X } from 'lucide-react';
@@ -23,7 +23,7 @@ const BetterISBNScanner: React.FC<ISBNScannerProps> = ({ onScan, onClose }) => {
         fps: 10,
         qrbox: { width: 250, height: 250 },
         aspectRatio: 1.0,
-        formatsToSupport: ['EAN_13'], // For ISBN barcodes
+        formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13], // For ISBN barcodes
         rememberLastUsedCamera: true,
       },
       false
