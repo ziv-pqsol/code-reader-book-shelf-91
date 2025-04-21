@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 const StudentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getStudentById, getStudentBooks, returnBook, books, borrowBook } = useLibrary();
+  const { getStudentById, getStudentBooks, returnBook, books = [], borrowBook } = useLibrary();
   const [isAssignBookOpen, setIsAssignBookOpen] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string>('');
   const { toast } = useToast();
@@ -74,6 +74,12 @@ const StudentDetailPage = () => {
       </div>
     );
   }
+  
+  // Prepare items for SearchableSelect, ensuring it's always a valid array
+  const bookSelectItems = availableBooks.map(book => ({
+    id: book.id,
+    label: `${book.title} - ${book.isbn}`
+  }));
   
   return (
     <div className="space-y-6">
@@ -215,10 +221,7 @@ const StudentDetailPage = () => {
           
           <div className="py-4">
             <SearchableSelect
-              items={availableBooks.map(book => ({
-                id: book.id,
-                label: `${book.title} - ${book.isbn}`
-              }))}
+              items={bookSelectItems}
               placeholder="Buscar libro por título o ISBN..."
               onSelect={setSelectedBookId}
               triggerText={selectedBookId 

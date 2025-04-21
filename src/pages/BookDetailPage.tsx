@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
@@ -19,7 +20,7 @@ import SearchableSelect from '@/components/SearchableSelect';
 
 const BookDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { getBookById, returnBook, getStudentById, students, borrowBook, books } = useLibrary();
+  const { getBookById, returnBook, getStudentById, students = [], borrowBook } = useLibrary();
   const [isEditBookOpen, setIsEditBookOpen] = useState(false);
   const [isAssignStudentOpen, setIsAssignStudentOpen] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
@@ -66,7 +67,7 @@ const BookDetailPage = () => {
     });
   };
 
-  // Filter students based on search
+  // Filter students based on search and ensure it's always a valid array
   const availableStudents = students ? students.filter(student => {
     if (!searchQuery) return true;
     const searchLower = searchQuery.toLowerCase();
@@ -75,6 +76,12 @@ const BookDetailPage = () => {
       student.code.toLowerCase().includes(searchLower)
     );
   }) : [];
+  
+  // Prepare items for SearchableSelect
+  const studentSelectItems = availableStudents.map(student => ({
+    id: student.id,
+    label: `${student.name} - ${student.code}`
+  }));
   
   return (
     <div className="space-y-6">
@@ -304,10 +311,7 @@ const BookDetailPage = () => {
           
           <div className="py-4">
             <SearchableSelect
-              items={availableStudents.map(student => ({
-                id: student.id,
-                label: `${student.name} - ${student.code}`
-              }))}
+              items={studentSelectItems}
               placeholder="Buscar estudiante por nombre o código..."
               onSelect={setSelectedStudentId}
               triggerText={selectedStudentId 

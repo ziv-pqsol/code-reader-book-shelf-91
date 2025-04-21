@@ -30,7 +30,7 @@ const SearchableSelect = ({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState(searchText);
 
-  // Ensure items is always an array
+  // Ensure items is always a valid array
   const safeItems = Array.isArray(items) ? items : [];
 
   return (
