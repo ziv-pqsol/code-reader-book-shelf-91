@@ -30,21 +30,23 @@ const SearchableSelect = ({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState(searchText || "");
 
-  // Ensure items is always a valid array to prevent "undefined is not iterable" error
-  const safeItems = useMemo(() => {
-    return Array.isArray(items) ? items : [];
-  }, [items]);
+  // Ensure items is always a valid array
+  const safeItems = useMemo(() => (
+    Array.isArray(items) ? items : []
+  ), [items]);
   
-  // When searchText prop changes, update internal search state
+  // Update search state when searchText prop changes
   useEffect(() => {
     if (searchText !== undefined) {
       setSearch(searchText);
     }
   }, [searchText]);
 
-  // Filter items based on search text
+  // Filter items based on search query
   const filteredItems = useMemo(() => {
-    if (!search.trim()) return safeItems;
+    if (!search.trim()) {
+      return safeItems;
+    }
     
     const searchLower = search.toLowerCase();
     return safeItems.filter(item => 
@@ -65,7 +67,7 @@ const SearchableSelect = ({
           <CommandInput 
             placeholder={placeholder} 
             value={search}
-            onValueChange={(value) => setSearch(value)}
+            onValueChange={setSearch}
           />
           <CommandEmpty className="p-2">
             <div className="text-sm text-muted-foreground py-2 text-center">
@@ -86,19 +88,21 @@ const SearchableSelect = ({
             )}
           </CommandEmpty>
           <CommandGroup className="max-h-64 overflow-auto">
-            {filteredItems.length > 0 ? (
-              filteredItems.map((item) => (
-                <CommandItem
-                  key={item.id}
-                  onSelect={() => {
-                    onSelect(item.id);
-                    setOpen(false);
-                  }}
-                >
-                  {item.label}
-                </CommandItem>
-              ))
-            ) : (
+            {filteredItems.map((item) => (
+              <CommandItem
+                key={item.id}
+                onSelect={() => {
+                  onSelect(item.id);
+                  setOpen(false);
+                }}
+              >
+                {item.label}
+              </CommandItem>
+            ))}
+            {filteredItems.length === 0 && safeItems.length > 0 && (
+              <CommandItem disabled>Intenta otra búsqueda</CommandItem>
+            )}
+            {safeItems.length === 0 && (
               <CommandItem disabled>No hay elementos disponibles</CommandItem>
             )}
           </CommandGroup>

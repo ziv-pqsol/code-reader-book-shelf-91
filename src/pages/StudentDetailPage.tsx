@@ -39,7 +39,7 @@ const StudentDetailPage = () => {
   
   // Filter available books based on search
   const availableBooks = useMemo(() => {
-    if (!books) return [];
+    if (!books || !Array.isArray(books)) return [];
     
     return books.filter(book => {
       if (!book.available) return false;
@@ -87,11 +87,13 @@ const StudentDetailPage = () => {
     );
   }
   
-  // Prepare items for SearchableSelect, ensuring it's always a valid array
-  const bookSelectItems = availableBooks.map(book => ({
-    id: book.id,
-    label: `${book.title} - ${book.isbn}`
-  }));
+  // Prepare items for SearchableSelect
+  const bookSelectItems = useMemo(() => {
+    return availableBooks.map(book => ({
+      id: book.id,
+      label: `${book.title} - ${book.isbn}`
+    }));
+  }, [availableBooks]);
   
   return (
     <div className="space-y-6">
@@ -241,26 +243,59 @@ const StudentDetailPage = () => {
           </DialogHeader>
           
           <div className="py-4">
-            <SearchableSelect
-              items={bookSelectItems}
-              placeholder="Buscar libro por título o ISBN..."
-              onSelect={setSelectedBookId}
-              triggerText={selectedBookId 
-                ? availableBooks.find(b => b.id === selectedBookId)?.title || "Seleccionar libro"
-                : "Seleccionar libro"}
-              searchText={searchQuery}
-              onAddNew={() => {
-                setIsAssignBookOpen(false);
-                navigate('/books?action=add');
-              }}
-            />
+            <div className="mb-2">
+              <label className="text-sm font-medium mb-1 block">Buscar libro:</label>
+              <Input 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar por título, autor o ISBN..." 
+                className="mb-2"
+              />
+            </div>
+            
+            <div className="max-h-60 overflow-y-auto border rounded-md">
+              {bookSelectItems.length > 0 ? (
+                bookSelectItems.map((item) => (
+                  <div 
+                    key={item.id}
+                    className={`p-2 cursor-pointer hover:bg-accent ${selectedBookId === item.id ? 'bg-accent' : ''}`}
+                    onClick={() => setSelectedBookId(item.id)}
+                  >
+                    {item.label}
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-center text-muted-foreground">
+                  {availableBooks.length === 0 ? 
+                    "No hay libros disponibles" : 
+                    "No se encontraron resultados para esta búsqueda"}
+                </div>
+              )}
+            </div>
+            
+            {bookSelectItems.length === 0 && (
+              <Button 
+                variant="outline" 
+                className="w-full mt-2" 
+                onClick={() => {
+                  setIsAssignBookOpen(false);
+                  navigate('/books?action=add');
+                }}
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Añadir Nuevo Libro
+              </Button>
+            )}
           </div>
           
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={() => setIsAssignBookOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleAssignBook}>
+            <Button 
+              onClick={handleAssignBook}
+              disabled={!selectedBookId}
+            >
               Asignar
             </Button>
           </div>

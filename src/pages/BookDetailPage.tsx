@@ -1,11 +1,10 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, User, Edit, BookOpen } from 'lucide-react';
+import { ArrowLeft, User, Edit, BookOpen, PlusCircle } from 'lucide-react';
 import { genreColors } from '@/data/mockData';
 import {
   Dialog,
@@ -16,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from "@/hooks/use-toast";
 import EditBookDialog from '@/components/EditBookDialog';
-import SearchableSelect from '@/components/SearchableSelect';
+import { Input } from '@/components/ui/input';
 
 const BookDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -77,7 +76,7 @@ const BookDetailPage = () => {
 
   // Filter students based on search and ensure it's always a valid array
   const availableStudents = useMemo(() => {
-    if (!students) return [];
+    if (!students || !Array.isArray(students)) return [];
     
     if (!searchQuery) return students;
     
@@ -88,8 +87,8 @@ const BookDetailPage = () => {
     ));
   }, [students, searchQuery]);
   
-  // Prepare items for SearchableSelect
-  const studentSelectItems = useMemo(() => {
+  // Prepare items for display
+  const studentItems = useMemo(() => {
     return availableStudents.map(student => ({
       id: student.id,
       label: `${student.name} - ${student.code}`
@@ -336,26 +335,59 @@ const BookDetailPage = () => {
           </DialogHeader>
           
           <div className="py-4">
-            <SearchableSelect
-              items={studentSelectItems}
-              placeholder="Buscar estudiante por nombre o código..."
-              onSelect={setSelectedStudentId}
-              triggerText={selectedStudentId 
-                ? availableStudents.find(s => s.id === selectedStudentId)?.name || "Seleccionar estudiante"
-                : "Seleccionar estudiante"}
-              searchText={searchQuery}
-              onAddNew={() => {
-                setIsAssignStudentOpen(false);
-                navigate('/students?action=add');
-              }}
-            />
+            <div className="mb-2">
+              <label className="text-sm font-medium mb-1 block">Buscar estudiante:</label>
+              <Input 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar por nombre o código..." 
+                className="mb-2"
+              />
+            </div>
+            
+            <div className="max-h-60 overflow-y-auto border rounded-md">
+              {studentItems.length > 0 ? (
+                studentItems.map((item) => (
+                  <div 
+                    key={item.id}
+                    className={`p-2 cursor-pointer hover:bg-accent ${selectedStudentId === item.id ? 'bg-accent' : ''}`}
+                    onClick={() => setSelectedStudentId(item.id)}
+                  >
+                    {item.label}
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-center text-muted-foreground">
+                  {availableStudents.length === 0 ? 
+                    "No hay estudiantes disponibles" : 
+                    "No se encontraron resultados para esta búsqueda"}
+                </div>
+              )}
+            </div>
+            
+            {studentItems.length === 0 && (
+              <Button 
+                variant="outline" 
+                className="w-full mt-2" 
+                onClick={() => {
+                  setIsAssignStudentOpen(false);
+                  navigate('/students?action=add');
+                }}
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Añadir Nuevo Estudiante
+              </Button>
+            )}
           </div>
           
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={() => setIsAssignStudentOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleAssignStudent}>
+            <Button 
+              onClick={handleAssignStudent}
+              disabled={!selectedStudentId}
+            >
               Asignar
             </Button>
           </div>

@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { useLibrary } from '@/context/LibraryContext';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, PlusCircle, BookOpen, User, QrCode, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ const BookGrid = ({ books }: { books: any[] }) => {
   const { deleteBook } = useLibrary();
   const { toast } = useToast();
   const [bookToDelete, setBookToDelete] = useState<string | null>(null);
+  const navigate = useNavigate();
   
   const handleDeleteBook = (book: any) => {
     if (!book.available) {
@@ -55,7 +57,11 @@ const BookGrid = ({ books }: { books: any[] }) => {
     <>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {books.map((book) => (
-          <Card key={book.id} className="overflow-hidden transition-shadow hover:shadow-md h-full">
+          <Card 
+            key={book.id} 
+            className="overflow-hidden transition-shadow hover:shadow-md h-full cursor-pointer"
+            onClick={() => navigate(`/books/${book.id}`)}
+          >
             <CardContent className="p-0">
               <div className="flex h-full">
                 
@@ -70,6 +76,7 @@ const BookGrid = ({ books }: { books: any[] }) => {
                     className="absolute top-2 right-2"
                     onClick={(e) => {
                       e.preventDefault();
+                      e.stopPropagation();
                       handleDeleteBook(book);
                     }}
                   >
