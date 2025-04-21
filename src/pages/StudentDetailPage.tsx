@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, BookOpen, PlusCircle, User } from 'lucide-react';
 import { genreColors } from '@/data/mockData';
 import SearchableSelect from '@/components/SearchableSelect';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
