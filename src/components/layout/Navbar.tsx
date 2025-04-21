@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import BetterISBNScanner from '@/components/BetterISBNScanner';
+import SimpleISBNScanner from '@/components/SimpleISBNScanner';
 
 const Navbar = () => {
   const { logout } = useAuth();
@@ -154,7 +154,7 @@ const Navbar = () => {
       {/* Scanner Dialog */}
       <Dialog open={showScanner} onOpenChange={setShowScanner}>
         <DialogContent className="sm:max-w-[425px]">
-          <BetterISBNScanner 
+          <SimpleISBNScanner 
             onScan={handleScanISBN}
             onClose={() => setShowScanner(false)}
           />
