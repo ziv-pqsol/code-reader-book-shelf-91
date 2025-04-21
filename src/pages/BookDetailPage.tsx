@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
@@ -29,6 +28,14 @@ const BookDetailPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const book = getBookById(id || '');
+  
+  // Reset search and selection when dialog opens/closes
+  useEffect(() => {
+    if (!isAssignStudentOpen) {
+      setSearchQuery('');
+      setSelectedStudentId('');
+    }
+  }, [isAssignStudentOpen]);
   
   if (!book) {
     return (

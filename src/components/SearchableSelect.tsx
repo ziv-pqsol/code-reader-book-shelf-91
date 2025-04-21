@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -28,10 +28,17 @@ const SearchableSelect = ({
   searchText = ""
 }: SearchableSelectProps) => {
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState(searchText);
+  const [search, setSearch] = useState(searchText || "");
 
-  // Ensure items is always a valid array
+  // Ensure items is always a valid array to prevent "undefined is not iterable" error
   const safeItems = Array.isArray(items) ? items : [];
+  
+  // When searchText prop changes, update internal search state
+  useEffect(() => {
+    if (searchText !== undefined) {
+      setSearch(searchText);
+    }
+  }, [searchText]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -46,7 +53,7 @@ const SearchableSelect = ({
           <CommandInput 
             placeholder={placeholder} 
             value={search}
-            onValueChange={setSearch}
+            onValueChange={(value) => setSearch(value)}
           />
           <CommandEmpty className="p-2">
             <div className="text-sm text-muted-foreground py-2 text-center">
