@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +35,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Check for session expiry
+  useEffect(() => {
+    const checkSessionExpiry = () => {
+      const sessionExpiry = localStorage.getItem('library_session_expiry');
+      
+      if (sessionExpiry) {
+        const expiryTime = parseInt(sessionExpiry, 10);
+        if (Date.now() >= expiryTime) {
+          logout();
+        }
+      }
+    };
+
+    // Check session expiry every minute
+    const interval = setInterval(checkSessionExpiry, 60000);
+
+    // Initial check
+    checkSessionExpiry();
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Check for existing session
   useEffect(() => {
@@ -87,11 +108,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      // Clear any previous errors
       setError(null);
       setIsLoginLoading(true);
       
-      // Check credentials in users table
       const { data, error } = await supabase
         .from('users')
         .select('username, password')
@@ -110,12 +129,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
       }
       
-      // Save user to state and localStorage with 7-day expiry
       const userData = { username: data.username };
       setUser(userData);
       
-      // Set session expiry to 7 days from now
-      const expiryTime = Date.now() + (7 * 24 * 60 * 60 * 1000);
+      // Set session expiry to 24 hours from now
+      const expiryTime = Date.now() + (24 * 60 * 60 * 1000);
       localStorage.setItem('library_user', JSON.stringify(userData));
       localStorage.setItem('library_session_expiry', expiryTime.toString());
       
