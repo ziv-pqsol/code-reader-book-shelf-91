@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
@@ -75,20 +76,25 @@ const BookDetailPage = () => {
   };
 
   // Filter students based on search and ensure it's always a valid array
-  const availableStudents = students ? students.filter(student => {
-    if (!searchQuery) return true;
+  const availableStudents = useMemo(() => {
+    if (!students) return [];
+    
+    if (!searchQuery) return students;
+    
     const searchLower = searchQuery.toLowerCase();
-    return (
+    return students.filter(student => (
       student.name.toLowerCase().includes(searchLower) ||
       student.code.toLowerCase().includes(searchLower)
-    );
-  }) : [];
+    ));
+  }, [students, searchQuery]);
   
   // Prepare items for SearchableSelect
-  const studentSelectItems = availableStudents.map(student => ({
-    id: student.id,
-    label: `${student.name} - ${student.code}`
-  }));
+  const studentSelectItems = useMemo(() => {
+    return availableStudents.map(student => ({
+      id: student.id,
+      label: `${student.name} - ${student.code}`
+    }));
+  }, [availableStudents]);
   
   return (
     <div className="space-y-6">
@@ -188,24 +194,33 @@ const BookDetailPage = () => {
                     <h3 className="font-medium mb-4">El libro puede ser asignado a:</h3>
                     <div className="grid gap-2 md:grid-cols-2">
                       {students && students.slice(0, 4).map((student) => (
-                        <Card key={student.id} className="overflow-hidden">
-                          <Button 
-                            variant="ghost" 
-                            className="h-auto p-4 w-full justify-start"
-                            onClick={() => {
-                              borrowBook(book.id, student.id);
-                              toast({
-                                title: "Libro asignado",
-                                description: `${book.title} ha sido asignado a ${student.name}`,
-                              });
-                            }}
-                          >
-                            <User className="h-5 w-5 mr-2 flex-shrink-0" />
-                            <div className="text-left flex-grow truncate">
-                              <p className="font-medium">{student.name}</p>
-                              <p className="text-xs text-muted-foreground">{student.grade} • {student.code}</p>
+                        <Card 
+                          key={student.id} 
+                          className="overflow-hidden cursor-pointer transition-shadow hover:shadow-md"
+                          onClick={() => navigate(`/students/${student.id}`)}
+                        >
+                          <div className="p-4">
+                            <div className="flex items-center space-x-3">
+                              <User className="h-5 w-5 flex-shrink-0" />
+                              <div className="text-left flex-grow truncate">
+                                <p className="font-medium">{student.name}</p>
+                                <p className="text-xs text-muted-foreground">{student.grade} • {student.code}</p>
+                              </div>
+                              <Button
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent card click
+                                  borrowBook(book.id, student.id);
+                                  toast({
+                                    title: "Libro asignado",
+                                    description: `${book.title} ha sido asignado a ${student.name}`,
+                                  });
+                                }}
+                              >
+                                Asignar
+                              </Button>
                             </div>
-                          </Button>
+                          </div>
                         </Card>
                       ))}
                     </div>
@@ -250,7 +265,10 @@ const BookDetailPage = () => {
                     </Button>
                   </div>
                   
-                  <Card className="overflow-hidden">
+                  <Card 
+                    className="overflow-hidden cursor-pointer transition-shadow hover:shadow-md"
+                    onClick={() => navigate(`/students/${borrower.id}`)}
+                  >
                     <CardContent className="p-4">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center">
@@ -264,11 +282,12 @@ const BookDetailPage = () => {
                         </div>
                         <Button 
                           variant="outline"
-                          asChild
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent card click
+                            navigate(`/students/${borrower.id}`);
+                          }}
                         >
-                          <Link to={`/students/${borrower.id}`}>
-                            Ver Perfil
-                          </Link>
+                          Ver Perfil
                         </Button>
                       </div>
                     </CardContent>

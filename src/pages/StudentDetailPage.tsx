@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
@@ -37,18 +38,22 @@ const StudentDetailPage = () => {
   }, [isAssignBookOpen]);
   
   // Filter available books based on search
-  const availableBooks = books ? books.filter(book => {
-    if (!book.available) return false;
+  const availableBooks = useMemo(() => {
+    if (!books) return [];
     
-    if (!searchQuery) return true;
-    
-    const searchLower = searchQuery.toLowerCase();
-    return (
-      book.title.toLowerCase().includes(searchLower) ||
-      book.author.toLowerCase().includes(searchLower) ||
-      book.isbn.toLowerCase().includes(searchLower)
-    );
-  }) : [];
+    return books.filter(book => {
+      if (!book.available) return false;
+      
+      if (!searchQuery) return true;
+      
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        book.title.toLowerCase().includes(searchLower) ||
+        book.author.toLowerCase().includes(searchLower) ||
+        book.isbn.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [books, searchQuery]);
   
   const handleAssignBook = () => {
     if (!selectedBookId) {
@@ -145,7 +150,11 @@ const StudentDetailPage = () => {
             {studentBooks.length > 0 ? (
               <div className="space-y-4">
                 {studentBooks.map((book) => (
-                  <Card key={book.id} className="overflow-hidden">
+                  <Card 
+                    key={book.id} 
+                    className="overflow-hidden cursor-pointer transition-shadow hover:shadow-md"
+                    onClick={() => navigate(`/books/${book.id}`)}
+                  >
                     <CardContent className="p-0">
                       <div className="flex">
                         <div 
@@ -174,6 +183,10 @@ const StudentDetailPage = () => {
                                 variant="outline"
                                 size="sm"
                                 asChild
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent card click
+                                  navigate(`/books/${book.id}`);
+                                }}
                               >
                                 <Link to={`/books/${book.id}`}>
                                   <BookOpen className="h-4 w-4 mr-2" />
@@ -183,7 +196,8 @@ const StudentDetailPage = () => {
                               <Button 
                                 variant="destructive"
                                 size="sm"
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent card click
                                   returnBook(book.id);
                                   toast({
                                     title: "Libro devuelto",

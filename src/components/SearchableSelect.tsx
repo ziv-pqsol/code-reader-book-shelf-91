@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ interface Item {
 }
 
 interface SearchableSelectProps {
-  items: Item[];
+  items: Item[] | undefined;
   placeholder: string;
   onSelect: (id: string) => void;
   triggerText: string;
@@ -31,7 +31,9 @@ const SearchableSelect = ({
   const [search, setSearch] = useState(searchText || "");
 
   // Ensure items is always a valid array to prevent "undefined is not iterable" error
-  const safeItems = Array.isArray(items) ? items : [];
+  const safeItems = useMemo(() => {
+    return Array.isArray(items) ? items : [];
+  }, [items]);
   
   // When searchText prop changes, update internal search state
   useEffect(() => {
@@ -39,6 +41,16 @@ const SearchableSelect = ({
       setSearch(searchText);
     }
   }, [searchText]);
+
+  // Filter items based on search text
+  const filteredItems = useMemo(() => {
+    if (!search.trim()) return safeItems;
+    
+    const searchLower = search.toLowerCase();
+    return safeItems.filter(item => 
+      item.label.toLowerCase().includes(searchLower)
+    );
+  }, [safeItems, search]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -74,8 +86,8 @@ const SearchableSelect = ({
             )}
           </CommandEmpty>
           <CommandGroup className="max-h-64 overflow-auto">
-            {safeItems.length > 0 ? (
-              safeItems.map((item) => (
+            {filteredItems.length > 0 ? (
+              filteredItems.map((item) => (
                 <CommandItem
                   key={item.id}
                   onSelect={() => {

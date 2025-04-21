@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useMemo } from 'react';
 import { useLibrary } from '@/context/LibraryContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, UserPlus, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -24,7 +25,7 @@ const StudentsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredStudents, setFilteredStudents] = useState(students);
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
-
+  const navigate = useNavigate();
   const { toast } = useToast();
   
   useEffect(() => {
@@ -78,18 +79,26 @@ const StudentsPage = () => {
           filteredStudents.map((student) => {
             const studentBooks = getStudentBooks(student.id);
             return (
-              <Card key={student.id} className="overflow-hidden transition-shadow hover:shadow-md">
+              <Card 
+                key={student.id} 
+                className="overflow-hidden transition-shadow hover:shadow-md cursor-pointer"
+                onClick={() => navigate(`/students/${student.id}`)}
+              >
                 <CardContent className="p-6">
                   <div className="flex flex-col space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <Link to={`/students/${student.id}`} className="flex-grow">
+                      <Link 
+                        to={`/students/${student.id}`} 
+                        className="flex-grow"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <h3 className="text-lg font-semibold">{student.name}</h3>
                       </Link>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={(e) => {
-                          e.preventDefault();
+                          e.stopPropagation(); // Prevent card click
                           handleDeleteStudent(student.id);
                         }}
                       >
