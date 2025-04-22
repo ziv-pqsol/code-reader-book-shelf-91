@@ -33,7 +33,7 @@ import { Input } from "@/components/ui/input";
 import { Genre } from "@/types";
 import { QrCode, Search, Book } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import ISBNScanner from "./ISBNScanner";
+import SimpleISBNScanner from "./SimpleISBNScanner";
 import { searchBookByISBN, getCoverUrl, formatAuthor, mapGenre } from "@/services/openLibraryService";
 
 interface AddBookDialogProps {
@@ -162,7 +162,7 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[425px]">
-          <ISBNScanner 
+          <SimpleISBNScanner 
             onScan={handleScanISBN} 
             onClose={() => setShowScanner(false)} 
           />

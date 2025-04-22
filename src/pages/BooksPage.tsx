@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLibrary } from '@/context/LibraryContext';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
@@ -11,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { genreColors } from '@/data/mockData';
 import AddBookDialog from '@/components/AddBookDialog';
-import ISBNScanner from '@/components/ISBNScanner';
+import SimpleISBNScanner from '@/components/SimpleISBNScanner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -246,11 +245,10 @@ const BooksPage = () => {
         onOpenChange={setIsAddBookOpen}
       />
       
-      {/* ISBN Scanner Modal */}
       {showScanner && (
         <Dialog open={showScanner} onOpenChange={setShowScanner}>
           <DialogContent className="sm:max-w-[425px]">
-            <ISBNScanner 
+            <SimpleISBNScanner 
               onScan={handleScanISBN} 
               onClose={() => setShowScanner(false)} 
             />
