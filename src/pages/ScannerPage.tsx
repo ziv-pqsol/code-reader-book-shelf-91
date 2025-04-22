@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
@@ -41,12 +42,13 @@ const ScannerPage = () => {
     }
   };
   
-  useEffect(() => {
-    // Clear results when tab changes
+  // Clear results when tab changes
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
     setMatchedStudents([]);
     setMatchedBooks([]);
     setSearchQuery('');
-  }, [activeTab]);
+  };
 
   const handleScanISBN = async (isbn: string) => {
     setShowScanner(false);
@@ -60,12 +62,12 @@ const ScannerPage = () => {
     if (foundBooks.length === 1) {
       navigate(`/books/${foundBooks[0].id}`);
     } else if (foundBooks.length === 0) {
-      // If not found in our library, check OpenLibrary
+      // If not found in our library, check external APIs
       try {
         const bookData = await searchBookByISBN(isbn);
         if (bookData) {
           toast({
-            title: "Libro encontrado en OpenLibrary",
+            title: "Libro encontrado",
             description: "Este libro existe pero no está en nuestra biblioteca. ¿Deseas añadirlo?",
             action: (
               <Button variant="outline" onClick={() => setShowAddBook(true)}>
@@ -76,7 +78,7 @@ const ScannerPage = () => {
         } else {
           toast({
             title: "Libro no encontrado",
-            description: "No se encontró el libro en nuestra biblioteca ni en OpenLibrary. ¿Deseas añadirlo manualmente?",
+            description: "No se encontró el libro en nuestra biblioteca ni en las APIs externas. ¿Deseas añadirlo manualmente?",
             action: (
               <Button variant="outline" onClick={() => setShowAddBook(true)}>
                 Añadir
@@ -85,7 +87,7 @@ const ScannerPage = () => {
           });
         }
       } catch (error) {
-        console.error("Error checking OpenLibrary:", error);
+        console.error("Error checking APIs:", error);
       }
     }
   };
@@ -97,7 +99,7 @@ const ScannerPage = () => {
         <p className="text-muted-foreground">Buscar estudiantes o libros por ISBN, nombre o código</p>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="students" className="flex items-center gap-2">
             <User className="h-4 w-4" />
@@ -238,6 +240,12 @@ const ScannerPage = () => {
       {/* ISBN Scanner Modal */}
       <Dialog open={showScanner} onOpenChange={setShowScanner}>
         <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Escanear ISBN</DialogTitle>
+            <DialogDescription>
+              Utiliza la cámara para escanear el código de barras ISBN
+            </DialogDescription>
+          </DialogHeader>
           <BetterISBNScanner 
             onScan={handleScanISBN} 
             onClose={() => setShowScanner(false)} 

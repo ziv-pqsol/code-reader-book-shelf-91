@@ -11,7 +11,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -33,7 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Genre } from "@/types";
 import { QrCode, Search, Book } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import ISBNScanner from "./ISBNScanner";
+import BetterISBNScanner from "./BetterISBNScanner";
 import { searchBookByISBN, getCoverUrl, formatAuthor, mapGenre } from "@/services/openLibraryService";
 
 interface AddBookDialogProps {
@@ -67,6 +66,7 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
   const { toast } = useToast();
   const [showScanner, setShowScanner] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [currentApiSource, setCurrentApiSource] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -105,6 +105,7 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
 
   const searchBookInfo = async (isbn: string) => {
     setLoading(true);
+    setCurrentApiSource("buscando");
     
     try {
       const bookData = await searchBookByISBN(isbn);
@@ -118,23 +119,32 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
           form.setValue("genre", mapGenre(bookData.subject));
         }
         
+        // Set cover URL from either Open Library or directly from bookData
         if (bookData.cover_i) {
           form.setValue("coverUrl", getCoverUrl(bookData.cover_i) || "");
+          setCurrentApiSource("OpenLibrary");
+        } else if (bookData.cover_url) {
+          form.setValue("coverUrl", bookData.cover_url);
+          setCurrentApiSource("Google Books");
         }
         
         toast({
           title: "Información encontrada",
-          description: "Se ha encontrado información del libro.",
+          description: bookData.cover_url ? 
+            "Se ha encontrado información del libro en Google Books." :
+            "Se ha encontrado información del libro en OpenLibrary.",
         });
       } else {
+        setCurrentApiSource(null);
         toast({
           title: "Libro no encontrado",
-          description: "No se encontró información para el ISBN proporcionado. Por favor, complete los detalles manualmente.",
+          description: "No se encontró información en ninguna de las fuentes. Por favor, complete los detalles manualmente.",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Error searching book:", error);
+      setCurrentApiSource(null);
       toast({
         title: "Error",
         description: "Hubo un error al buscar la información del libro.",
@@ -162,7 +172,7 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[425px]">
-          <ISBNScanner 
+          <BetterISBNScanner 
             onScan={handleScanISBN} 
             onClose={() => setShowScanner(false)} 
           />
@@ -210,6 +220,12 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
                       <Search className="h-4 w-4" />
                     </Button>
                   </div>
+                  {loading && (
+                    <p className="text-xs text-muted-foreground mt-1">Buscando en múltiples fuentes...</p>
+                  )}
+                  {currentApiSource && !loading && currentApiSource !== "buscando" && (
+                    <p className="text-xs text-muted-foreground mt-1">Fuente: {currentApiSource}</p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
