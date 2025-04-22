@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User, Book, Search, QrCode, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import SimpleISBNScanner from '@/components/SimpleISBNScanner';
+import BetterISBNScanner from '@/components/BetterISBNScanner';
 import AddBookDialog from '@/components/AddBookDialog';
 import { searchBookByISBN } from '@/services/openLibraryService';
 import { useToast } from '@/hooks/use-toast';
@@ -238,7 +238,7 @@ const ScannerPage = () => {
       {/* ISBN Scanner Modal */}
       <Dialog open={showScanner} onOpenChange={setShowScanner}>
         <DialogContent className="sm:max-w-[425px]">
-          <SimpleISBNScanner 
+          <BetterISBNScanner 
             onScan={handleScanISBN} 
             onClose={() => setShowScanner(false)} 
           />
