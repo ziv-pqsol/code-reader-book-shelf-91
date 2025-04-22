@@ -89,7 +89,7 @@ async function searchGoogleBooks(isbn: string): Promise<OpenLibraryDoc | null> {
       const book = data.items[0].volumeInfo;
       
       // Convert Google Books format to OpenLibrary format
-      return {
+      const bookData: OpenLibraryDoc = {
         title: book.title || '',
         author_name: book.authors || [],
         isbn: [isbn],
@@ -102,6 +102,8 @@ async function searchGoogleBooks(isbn: string): Promise<OpenLibraryDoc | null> {
         description: book.description || null,
         language: book.language || null
       };
+      
+      return bookData;
     }
     
     return null;

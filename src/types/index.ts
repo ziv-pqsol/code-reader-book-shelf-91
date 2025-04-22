@@ -102,4 +102,10 @@ export interface OpenLibraryDoc {
   cover_i?: number;
   isbn?: string[];
   subject?: string[];
+  // Add the missing properties
+  cover_url?: string;
+  description?: string | null;
+  language?: string | null;
+  publisher?: string | null;
+  publish_year?: number[];
 }

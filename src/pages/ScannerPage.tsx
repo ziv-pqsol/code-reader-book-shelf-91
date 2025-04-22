@@ -11,7 +11,13 @@ import BetterISBNScanner from '@/components/BetterISBNScanner';
 import AddBookDialog from '@/components/AddBookDialog';
 import { searchBookByISBN } from '@/services/openLibraryService';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { 
+  Dialog, 
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from '@/components/ui/dialog';
 
 const ScannerPage = () => {
   const navigate = useNavigate();
