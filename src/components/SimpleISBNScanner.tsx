@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ScanBarcode, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 
 interface SimpleISBNScannerProps {
   onScan: (isbn: string) => void;
@@ -11,55 +12,102 @@ interface SimpleISBNScannerProps {
 }
 
 const SimpleISBNScanner: React.FC<SimpleISBNScannerProps> = ({ onScan, onClose }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isScanning, setIsScanning] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scannerStarted, setScannerStarted] = useState(false);
+  const qrScannerId = 'html5-qrcode-scanner';
   const { toast } = useToast();
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   useEffect(() => {
     return () => {
-      stopScanning();
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch(console.error);
+      }
     };
   }, []);
 
-  const stopScanning = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-      tracks.forEach(track => track.stop());
-      videoRef.current.srcObject = null;
-    }
-    setIsScanning(false);
-  };
+  const startScanner = () => {
+    setIsScanning(true);
+    setScannerStarted(true);
+    setCameraError(null);
 
-  const startScanning = async () => {
     try {
-      setCameraError(null);
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' }
-      });
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        setIsScanning(true);
+      // If scanner was previously initialized, clear it
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch(console.error);
       }
+
+      // Remove any existing scanner elements
+      const existingElement = document.getElementById(qrScannerId);
+      if (existingElement) {
+        existingElement.innerHTML = "";
+      }
+
+      // Create new scanner
+      const html5QrcodeScanner = new Html5QrcodeScanner(
+        qrScannerId,
+        { 
+          fps: 10, 
+          qrbox: { width: 250, height: 100 },
+          formatsToSupport: [0], // 0 = EAN-13 (ISBN-13)
+          rememberLastUsedCamera: true,
+          showTorchButtonIfSupported: true,
+        },
+        /* verbose= */ false
+      );
+
+      scannerRef.current = html5QrcodeScanner;
+
+      html5QrcodeScanner.render(
+        (decodedText) => {
+          // Success callback - ISBN barcode detected
+          if (decodedText && decodedText.length >= 10) {
+            // Clean up non-numeric characters
+            const cleanedISBN = decodedText.replace(/[^0-9X]/gi, '');
+            // Handle both ISBN-10 and ISBN-13
+            if ((cleanedISBN.length === 10 || cleanedISBN.length === 13) && 
+                /^(?:\d{10}|\d{13})$/i.test(cleanedISBN)) {
+              toast({
+                title: "ISBN escaneado",
+                description: `Código detectado: ${cleanedISBN}`,
+              });
+              onScan(cleanedISBN);
+            }
+          }
+        },
+        (errorMessage) => {
+          // Error callback - continuous scanning, so we don't need to handle most errors
+          if (errorMessage.includes("Camera access denied")) {
+            setCameraError("Permiso de cámara denegado. Por favor, permita el acceso a la cámara.");
+            setIsScanning(false);
+            if (scannerRef.current) {
+              scannerRef.current.clear().catch(console.error);
+            }
+            toast({
+              title: "Error de cámara",
+              description: "Permiso de cámara denegado. Por favor, permita el acceso a la cámara.",
+              variant: "destructive",
+            });
+          }
+        }
+      );
     } catch (error) {
-      console.error('Error accessing camera:', error);
-      
-      let errorMessage = "No se pudo acceder a la cámara.";
-      if ((error as any).name === 'NotAllowedError') {
-        errorMessage = "Permiso de cámara denegado. Por favor, permite el acceso a la cámara en la configuración de tu navegador.";
-      } else if ((error as any).name === 'NotFoundError') {
-        errorMessage = "No se ha encontrado ninguna cámara. Por favor, asegúrate de que tu dispositivo tiene una cámara.";
-      } else if ((error as any).name === 'NotReadableError') {
-        errorMessage = "La cámara está en uso por otra aplicación o no está disponible.";
-      }
-      
-      setCameraError(errorMessage);
+      console.error('Error starting scanner:', error);
+      setCameraError("No se pudo iniciar el escáner. Intente de nuevo o ingrese el ISBN manualmente.");
+      setIsScanning(false);
       toast({
-        title: "Error de cámara",
-        description: errorMessage,
+        title: "Error de escáner",
+        description: "No se pudo iniciar el escáner. Intente de nuevo o ingrese el ISBN manualmente.",
         variant: "destructive",
       });
+    }
+  };
+
+  const stopScanner = () => {
+    if (scannerRef.current) {
+      scannerRef.current.clear().catch(console.error);
+      setIsScanning(false);
     }
   };
 
@@ -126,38 +174,33 @@ const SimpleISBNScanner: React.FC<SimpleISBNScannerProps> = ({ onScan, onClose }
             </div>
           )}
 
-          {isScanning ? (
-            <div className="relative">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                className="w-full rounded-lg border border-input"
-              />
-              <Button 
-                variant="secondary" 
-                className="absolute bottom-4 right-4"
-                onClick={stopScanning}
-              >
-                Detener Cámara
-              </Button>
-            </div>
-          ) : (
+          {!isScanning ? (
             <Button 
-              onClick={startScanning} 
+              onClick={startScanner} 
               className="w-full"
               variant="outline"
             >
               <ScanBarcode className="mr-2 h-4 w-4" />
               Iniciar Cámara
             </Button>
+          ) : (
+            <div className="space-y-4">
+              <div id={qrScannerId} className="w-full"></div>
+              <Button 
+                variant="secondary" 
+                className="w-full"
+                onClick={stopScanner}
+              >
+                Detener Cámara
+              </Button>
+            </div>
           )}
         </div>
       </CardContent>
       
       <CardFooter className="flex justify-center p-6 pt-0">
         <p className="text-sm text-muted-foreground text-center">
-          Ingresa el ISBN manualmente o intenta usar la cámara para escanear el código de barras
+          Ingresa el ISBN manualmente o usa la cámara para escanear el código de barras
         </p>
       </CardFooter>
     </Card>
