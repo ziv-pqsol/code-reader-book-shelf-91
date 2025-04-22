@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
