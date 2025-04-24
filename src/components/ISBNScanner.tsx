@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { QrCode, Book, X } from 'lucide-react';
+import { ScanBarcode, Book, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ISBNScannerProps {
@@ -19,37 +19,50 @@ const ISBNScanner: React.FC<ISBNScannerProps> = ({ onScan, onClose }) => {
 
   useEffect(() => {
     if (scanning) {
-      // Initialize the scanner
-      scannerRef.current = new Html5QrcodeScanner(
-        scannerContainerId,
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          rememberLastUsedCamera: true,
-        },
-        /* verbose= */ false
-      );
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        try {
+          // Initialize the scanner
+          scannerRef.current = new Html5QrcodeScanner(
+            scannerContainerId,
+            {
+              fps: 10,
+              qrbox: { width: 250, height: 250 },
+              rememberLastUsedCamera: true,
+            },
+            /* verbose= */ false
+          );
 
-      scannerRef.current.render(
-        (decodedText) => {
-          // Check if it's a valid ISBN (simple numeric check for now)
-          const isbnRegex = /^(?:\d{10}|\d{13})$/;
-          
-          if (isbnRegex.test(decodedText)) {
-            onScan(decodedText);
-            stopScanner();
-          } else {
-            toast({
-              title: "No es un ISBN válido",
-              description: "El código escaneado no parece ser un ISBN. Por favor, inténtalo de nuevo.",
-              variant: "destructive",
-            });
-          }
-        },
-        (errorMessage) => {
-          console.error("Scanner error:", errorMessage);
+          scannerRef.current.render(
+            (decodedText) => {
+              // Check if it's a valid ISBN (simple numeric check for now)
+              const isbnRegex = /^(?:\d{10}|\d{13})$/;
+              
+              if (isbnRegex.test(decodedText)) {
+                onScan(decodedText);
+                stopScanner();
+              } else {
+                toast({
+                  title: "No es un ISBN válido",
+                  description: "El código escaneado no parece ser un ISBN. Por favor, inténtalo de nuevo.",
+                  variant: "destructive",
+                });
+              }
+            },
+            (errorMessage) => {
+              console.error("Scanner error:", errorMessage);
+            }
+          );
+        } catch (err) {
+          console.error("Error initializing scanner:", err);
+          setScanning(false);
+          toast({
+            title: "Error del escáner",
+            description: "No se pudo iniciar el escáner. Asegúrate de permitir el acceso a la cámara.",
+            variant: "destructive",
+          });
         }
-      );
+      }, 100);
     }
 
     return () => {
@@ -74,7 +87,7 @@ const ISBNScanner: React.FC<ISBNScannerProps> = ({ onScan, onClose }) => {
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold flex items-center">
-            <QrCode className="h-5 w-5 mr-2" />
+            <ScanBarcode className="h-5 w-5 mr-2" />
             Escanear ISBN
           </h3>
           <Button variant="ghost" size="sm" onClick={onClose}>

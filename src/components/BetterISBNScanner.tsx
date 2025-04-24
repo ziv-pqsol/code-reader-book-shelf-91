@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { QrCode, Book, X, Camera } from 'lucide-react';
+import { ScanBarcode, Book, X, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ISBNScannerProps {
@@ -17,6 +17,7 @@ const BetterISBNScanner: React.FC<ISBNScannerProps> = ({ onScan, onClose }) => {
   const { toast } = useToast();
   const [scanning, setScanning] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const scannerDivRef = useRef<HTMLDivElement>(null);
 
   // This prevents multiple instances of the scanner
   const initializeScanner = () => {
@@ -28,57 +29,64 @@ const BetterISBNScanner: React.FC<ISBNScannerProps> = ({ onScan, onClose }) => {
     setHasError(false);
     setScanning(true);
 
-    try {
-      scannerRef.current = new Html5QrcodeScanner(
-        scannerContainerId,
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0,
-          formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13], // For ISBN barcodes
-          rememberLastUsedCamera: true,
-        },
-        false
-      );
-
-      scannerRef.current.render(
-        (decodedText) => {
-          const isbnRegex = /^(?:\d{10}|\d{13})$/;
-          if (isbnRegex.test(decodedText)) {
-            // Process scan only once
-            if (scannerRef.current) {
-              scannerRef.current.clear();
-              scannerRef.current = null;
-              setScanning(false);
-              onScan(decodedText);
-            }
-          } else {
-            // Only show one error toast for invalid ISBN
-            if (!hasError) {
-              setHasError(true);
-              toast({
-                title: "No es un ISBN válido",
-                description: "El código escaneado no parece ser un ISBN válido",
-                variant: "destructive",
-              });
-            }
-          }
-        },
-        (error) => {
-          // We'll handle errors at component level, not in the callback
-          console.error("Scanner error:", error);
+    // Add a small delay to ensure the DOM element exists
+    setTimeout(() => {
+      try {
+        if (!document.getElementById(scannerContainerId)) {
+          throw new Error(`HTML Element with id=${scannerContainerId} not found`);
         }
-      );
-    } catch (err) {
-      console.error("Error initializing scanner:", err);
-      setHasError(true);
-      setScanning(false);
-      toast({
-        title: "Error del escáner",
-        description: "No se pudo iniciar el escáner. Asegúrate de permitir el acceso a la cámara.",
-        variant: "destructive",
-      });
-    }
+        
+        scannerRef.current = new Html5QrcodeScanner(
+          scannerContainerId,
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0,
+            formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13], // For ISBN barcodes
+            rememberLastUsedCamera: true,
+          },
+          false
+        );
+
+        scannerRef.current.render(
+          (decodedText) => {
+            const isbnRegex = /^(?:\d{10}|\d{13})$/;
+            if (isbnRegex.test(decodedText)) {
+              // Process scan only once
+              if (scannerRef.current) {
+                scannerRef.current.clear();
+                scannerRef.current = null;
+                setScanning(false);
+                onScan(decodedText);
+              }
+            } else {
+              // Only show one error toast for invalid ISBN
+              if (!hasError) {
+                setHasError(true);
+                toast({
+                  title: "No es un ISBN válido",
+                  description: "El código escaneado no parece ser un ISBN válido",
+                  variant: "destructive",
+                });
+              }
+            }
+          },
+          (error) => {
+            // We'll handle errors at component level, not in the callback
+            console.error("Scanner error:", error);
+          }
+        );
+      } catch (err) {
+        console.error("Error initializing scanner:", err);
+        setHasError(true);
+        setScanning(false);
+        toast({
+          title: "Error del escáner",
+          description: "No se pudo iniciar el escáner. Asegúrate de permitir el acceso a la cámara.",
+          variant: "destructive",
+        });
+      }
+    }, 100); // Small delay to ensure DOM is ready
   };
 
   const stopScanner = () => {
@@ -102,7 +110,7 @@ const BetterISBNScanner: React.FC<ISBNScannerProps> = ({ onScan, onClose }) => {
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center">
-          <QrCode className="h-5 w-5 mr-2" />
+          <ScanBarcode className="h-5 w-5 mr-2" />
           Escanear ISBN
         </CardTitle>
         <CardDescription>
@@ -118,7 +126,7 @@ const BetterISBNScanner: React.FC<ISBNScannerProps> = ({ onScan, onClose }) => {
         </div>
 
         {scanning ? (
-          <div id={scannerContainerId} className="w-full min-h-[300px]" />
+          <div id={scannerContainerId} ref={scannerDivRef} className="w-full min-h-[300px]" />
         ) : (
           <div className="text-center py-8 space-y-4">
             <Camera className="h-12 w-12 mx-auto text-muted-foreground" />

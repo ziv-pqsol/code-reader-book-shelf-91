@@ -65,7 +65,12 @@ async function searchOpenLibrary(isbn: string): Promise<OpenLibraryDoc | null> {
     const data = await response.json() as OpenLibraryResponse;
     
     if (data.docs && data.docs.length > 0) {
-      return data.docs[0];
+      // Add cover URL directly to the document
+      const doc = data.docs[0];
+      if (doc.cover_i) {
+        doc.cover_url = getCoverUrl(doc.cover_i);
+      }
+      return doc;
     }
     
     return null;
