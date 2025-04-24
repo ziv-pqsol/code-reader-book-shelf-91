@@ -1,5 +1,5 @@
-
 import { OpenLibraryResponse, OpenLibraryDoc, Genre } from '@/types';
+import { searchFCE } from './fceMexicoService';
 
 export const OPEN_LIBRARY_API_URL = 'https://openlibrary.org/search.json';
 export const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
@@ -30,8 +30,15 @@ export function mapGenre(subjects: string[] = []): Genre {
 
 // Primary function to search across multiple APIs
 export async function searchBookByISBN(isbn: string) {
-  // Try Open Library first
+  // Try FCE first since it's a Mexican library
   try {
+    const fceData = await searchFCE(isbn);
+    if (fceData) {
+      console.log("Book found in FCE");
+      return fceData;
+    }
+    
+    // Try Open Library if not found in FCE
     const openLibraryData = await searchOpenLibrary(isbn);
     if (openLibraryData) {
       console.log("Book found in Open Library");

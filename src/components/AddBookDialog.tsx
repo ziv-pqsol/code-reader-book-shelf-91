@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -130,9 +129,11 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
         
         toast({
           title: "Información encontrada",
-          description: bookData.cover_url ? 
-            "Se ha encontrado información del libro en Google Books." :
-            "Se ha encontrado información del libro en OpenLibrary.",
+          description: bookData.publisher === 'Fondo de Cultura Económica' ?
+            "Se encontró información del libro en FCE." :
+            bookData.cover_url?.includes('google') ?
+              "Se encontró información del libro en Google Books." :
+              "Se encontró información del libro en OpenLibrary.",
         });
       } else {
         setCurrentApiSource(null);
