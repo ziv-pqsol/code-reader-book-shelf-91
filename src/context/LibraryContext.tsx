@@ -3,7 +3,6 @@ import { Book, Student, mapSupabaseBook, mapSupabaseStudent, mapBookToSupabase, 
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { addDays, format, isAfter, parseISO } from 'date-fns';
 
 interface LibraryContextType {
   books: Book[];
@@ -14,14 +13,12 @@ interface LibraryContextType {
   searchStudents: (query: string) => Student[];
   borrowBook: (bookId: string, studentId: string) => void;
   returnBook: (bookId: string) => void;
-  extendBookLoan: (bookId: string, days?: number) => void;
   getStudentBooks: (studentId: string) => Book[];
   getBookStats: () => {
     totalBooks: number;
     availableBooks: number;
     borrowedBooks: number;
     mostBorrowedBooks: Book[];
-    overdueBooks: number;
   };
   addBook: (book: Omit<Book, 'id'>) => void;
   updateBook: (id: string, book: Partial<Book>) => void;
@@ -29,8 +26,6 @@ interface LibraryContextType {
   isLoading: boolean;
   deleteStudent: (id: string) => void;
   deleteBook: (id: string) => void;
-  getOverdueBooks: () => Book[];
-  getDueSoonBooks: () => Book[];
 }
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined);
@@ -46,11 +41,6 @@ export const useLibrary = () => {
 interface LibraryProviderProps {
   children: ReactNode;
 }
-
-// Default loan period in days
-const DEFAULT_LOAN_PERIOD = 5;
-// Maximum number of renewals allowed
-const MAX_RENEWALS = 3; 
 
 export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) => {
   const { toast } = useToast();
@@ -181,10 +171,7 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
         author: book.author,
         genre: book.genre,
         code: book.isbn, // Use isbn for code field in database
-        cover_url: book.coverUrl,
-        borrow_date: book.borrowDate,
-        due_date: book.dueDate,
-        renewal_count: book.renewalCount
+        cover_url: book.coverUrl
       };
       
       // Only include defined fields
@@ -231,20 +218,13 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
         throw new Error("Estudiante no encontrado");
       }
       
-      // Get current date and calculate due date (5 days from now)
-      const borrowDate = format(new Date(), 'yyyy-MM-dd');
-      const dueDate = format(addDays(new Date(), DEFAULT_LOAN_PERIOD), 'yyyy-MM-dd');
-      
       const { data, error } = await supabase
         .from('books')
         .update({
           available: false,
           borrower_id: studentId,
           borrower_name: student.name,
-          borrower_code: student.code,
-          borrow_date: borrowDate,
-          due_date: dueDate,
-          renewal_count: 0
+          borrower_code: student.code
         })
         .eq('id', bookId)
         .select()
@@ -257,11 +237,11 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
       
       return mapSupabaseBook(data);
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['books'] });
       toast({
         title: "Libro prestado",
-        description: `El libro "${data.title}" se ha prestado correctamente. Debe devolverse antes del ${format(parseISO(data.dueDate || ''), 'dd/MM/yyyy')}.`,
+        description: "El libro se ha prestado correctamente",
       });
     },
     onError: (error) => {
@@ -282,10 +262,7 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
           available: true,
           borrower_id: null,
           borrower_name: null,
-          borrower_code: null,
-          borrow_date: null,
-          due_date: null,
-          renewal_count: null
+          borrower_code: null
         })
         .eq('id', bookId)
         .select()
@@ -298,76 +275,17 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
       
       return mapSupabaseBook(data);
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['books'] });
       toast({
         title: "Libro devuelto",
-        description: `El libro "${data.title}" ha sido devuelto correctamente.`,
+        description: "El libro se ha devuelto correctamente",
       });
     },
     onError: (error) => {
       toast({
         title: "Error",
         description: "No se pudo devolver el libro",
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Extend loan mutation
-  const extendLoanMutation = useMutation({
-    mutationFn: async ({ bookId, days = DEFAULT_LOAN_PERIOD }: { bookId: string, days?: number }) => {
-      // Get the existing book first
-      const book = getBookById(bookId);
-      if (!book || book.available) {
-        throw new Error("El libro no está prestado actualmente");
-      }
-      
-      if (book.renewalCount && book.renewalCount >= MAX_RENEWALS) {
-        throw new Error(`El préstamo ya ha sido renovado el máximo de ${MAX_RENEWALS} veces`);
-      }
-      
-      // Calculate new due date based on current due date or today
-      let startDate = new Date();
-      if (book.dueDate) {
-        const currentDueDate = parseISO(book.dueDate);
-        // If current due date is in the future, extend from there
-        if (isAfter(currentDueDate, new Date())) {
-          startDate = currentDueDate;
-        }
-      }
-      
-      const newDueDate = format(addDays(startDate, days), 'yyyy-MM-dd');
-      const newRenewalCount = (book.renewalCount || 0) + 1;
-      
-      const { data, error } = await supabase
-        .from('books')
-        .update({
-          due_date: newDueDate,
-          renewal_count: newRenewalCount
-        })
-        .eq('id', bookId)
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('Error extending loan:', error);
-        throw error;
-      }
-      
-      return mapSupabaseBook(data);
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['books'] });
-      toast({
-        title: "Préstamo extendido",
-        description: `El préstamo para "${data.title}" ha sido extendido hasta el ${format(parseISO(data.dueDate || ''), 'dd/MM/yyyy')}.`,
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "No se pudo extender el préstamo",
         variant: "destructive",
       });
     }
@@ -480,38 +398,14 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
     returnBookMutation.mutate(bookId);
   };
 
-  const extendBookLoan = (bookId: string, days?: number): void => {
-    extendLoanMutation.mutate({ bookId, days });
-  };
-
   const getStudentBooks = (studentId: string): Book[] => {
     return books.filter(book => book.borrowerId === studentId);
-  };
-
-  const getOverdueBooks = (): Book[] => {
-    const today = new Date();
-    return books.filter(book => {
-      if (!book.dueDate || book.available) return false;
-      const dueDate = parseISO(book.dueDate);
-      return isAfter(today, dueDate);
-    });
-  };
-
-  const getDueSoonBooks = (): Book[] => {
-    const today = new Date();
-    const threeDaysFromNow = addDays(today, 3);
-    return books.filter(book => {
-      if (!book.dueDate || book.available) return false;
-      const dueDate = parseISO(book.dueDate);
-      return isAfter(threeDaysFromNow, dueDate) && isAfter(dueDate, today);
-    });
   };
 
   const getBookStats = () => {
     const totalBooks = books.length;
     const availableBooks = books.filter(book => book.available).length;
     const borrowedBooks = totalBooks - availableBooks;
-    const overdueBooks = getOverdueBooks().length;
     
     const mostBorrowedBooks = books.filter(book => !book.available).slice(0, 5);
     
@@ -519,8 +413,7 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
       totalBooks,
       availableBooks,
       borrowedBooks,
-      mostBorrowedBooks,
-      overdueBooks
+      mostBorrowedBooks
     };
   };
 
@@ -557,7 +450,6 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
         searchStudents,
         borrowBook,
         returnBook,
-        extendBookLoan,
         getStudentBooks,
         getBookStats,
         addBook,
@@ -566,8 +458,6 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
         isLoading,
         deleteStudent,
         deleteBook,
-        getOverdueBooks,
-        getDueSoonBooks,
       }}
     >
       {children}
