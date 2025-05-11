@@ -55,6 +55,8 @@ const formSchema = z.object({
   }),
   genre: z.enum(["literatura", "ficción", "ciencia", "historia", "arte"] as const),
   coverUrl: z.string().optional(),
+  classificationNumber: z.string().optional(),
+  inventoryNumber: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -77,6 +79,8 @@ const EditBookDialog: React.FC<EditBookDialogProps> = ({
       isbn: "",
       genre: "literatura",
       coverUrl: "",
+      classificationNumber: "",
+      inventoryNumber: "",
     },
   });
 
@@ -89,6 +93,8 @@ const EditBookDialog: React.FC<EditBookDialogProps> = ({
         isbn: book.isbn,
         genre: book.genre,
         coverUrl: book.coverUrl || "",
+        classificationNumber: book.classificationNumber || "",
+        inventoryNumber: book.inventoryNumber || "",
       });
     }
   }, [book, open, form]);
@@ -99,7 +105,9 @@ const EditBookDialog: React.FC<EditBookDialogProps> = ({
     updateBook(book.id, {
       ...values,
       // Only include the coverUrl if it's not empty
-      coverUrl: values.coverUrl || null,
+      coverUrl: values.coverUrl || undefined,
+      classificationNumber: values.classificationNumber || undefined,
+      inventoryNumber: values.inventoryNumber || undefined,
     });
     
     onOpenChange(false);
@@ -251,6 +259,34 @@ const EditBookDialog: React.FC<EditBookDialogProps> = ({
                 </FormItem>
               )}
             />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="classificationNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Clasificación</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Número de clasificación" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="inventoryNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Inventario</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Número de inventario" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="genre"

@@ -13,40 +13,52 @@ export type Database = {
         Row: {
           author: string
           available: boolean
+          borrowed_date: string | null
           borrower_code: string | null
           borrower_id: string | null
           borrower_name: string | null
+          classification_number: string | null
           code: string
           cover_url: string | null
           created_at: string
           genre: string
           id: string
+          inventory_number: string | null
+          return_date: string | null
           title: string
         }
         Insert: {
           author: string
           available?: boolean
+          borrowed_date?: string | null
           borrower_code?: string | null
           borrower_id?: string | null
           borrower_name?: string | null
+          classification_number?: string | null
           code: string
           cover_url?: string | null
           created_at?: string
           genre: string
           id?: string
+          inventory_number?: string | null
+          return_date?: string | null
           title: string
         }
         Update: {
           author?: string
           available?: boolean
+          borrowed_date?: string | null
           borrower_code?: string | null
           borrower_id?: string | null
           borrower_name?: string | null
+          classification_number?: string | null
           code?: string
           cover_url?: string | null
           created_at?: string
           genre?: string
           id?: string
+          inventory_number?: string | null
+          return_date?: string | null
           title?: string
         }
         Relationships: [

@@ -52,7 +52,7 @@ const SearchPage = () => {
               </div>
               <Input
                 className="pl-10 py-6 text-lg"
-                placeholder="Buscar por título de libro, autor, nombre de estudiante o código..."
+                placeholder="Buscar por título, autor, código, clasificación, inventario..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

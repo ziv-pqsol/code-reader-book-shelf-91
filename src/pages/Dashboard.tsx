@@ -4,16 +4,38 @@ import { Book, BookOpen, User, BarChart } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const Dashboard = () => {
   const { books, students, getBookStats } = useLibrary();
   
   const { totalBooks, availableBooks, borrowedBooks, mostBorrowedBooks } = getBookStats();
-  const borrowedPercentage = Math.round((borrowedBooks / totalBooks) * 100);
+  const borrowedPercentage = Math.round((borrowedBooks / totalBooks) * 100) || 0;
+  
+  // Find books that are overdue (current date is past return date)
+  const overdueBooks = books.filter(book => {
+    if (!book.available && book.returnDate) {
+      const returnDate = new Date(book.returnDate);
+      const currentDate = new Date();
+      return currentDate > returnDate;
+    }
+    return false;
+  });
   
   const studentsWithBooks = students.filter(student => {
     return books.some(book => book.borrowerId === student.id);
   });
+
+  // Format date helper function
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return "N/A";
+    try {
+      return format(new Date(dateString), "d 'de' MMMM, yyyy", { locale: es });
+    } catch (e) {
+      return "Fecha inválida";
+    }
+  };
   
   return (
     <div className="space-y-6">
@@ -56,14 +78,14 @@ const Dashboard = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className={overdueBooks.length > 0 ? "border-red-200 bg-red-50" : ""}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Estudiantes Activos</CardTitle>
+            <CardTitle className="text-sm font-medium">Libros Vencidos</CardTitle>
             <BarChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{studentsWithBooks.length}</div>
-            <p className="text-xs text-muted-foreground">Estudiantes con libros prestados</p>
+            <div className="text-2xl font-bold">{overdueBooks.length}</div>
+            <p className="text-xs text-muted-foreground">Libros con fecha de devolución vencida</p>
           </CardContent>
         </Card>
       </div>
@@ -102,7 +124,14 @@ const Dashboard = () => {
                   <div key={book.id} className="flex items-center">
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{book.title}</p>
-                      <p className="truncate text-sm text-muted-foreground">Prestado a {book.borrowerName}</p>
+                      <div className="flex justify-between">
+                        <p className="truncate text-sm text-muted-foreground">Prestado a {book.borrowerName}</p>
+                        {book.returnDate && (
+                          <p className={`text-xs ${new Date(book.returnDate) < new Date() ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
+                            Devolver: {formatDate(book.returnDate)}
+                          </p>
+                        )}
+                      </div>
                     </div>
                     <Link 
                       to={`/books/${book.id}`}

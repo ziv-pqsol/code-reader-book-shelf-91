@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -53,6 +54,8 @@ const formSchema = z.object({
   }),
   genre: z.enum(["literatura", "ficción", "ciencia", "historia", "arte"] as const),
   coverUrl: z.string().optional(),
+  classificationNumber: z.string().optional(),
+  inventoryNumber: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -75,6 +78,8 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
       isbn: "",
       genre: "literatura",
       coverUrl: "",
+      classificationNumber: "",
+      inventoryNumber: "",
     },
   });
 
@@ -88,7 +93,10 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
       author: values.author,
       isbn: values.isbn,
       genre: values.genre,
-      // coverUrl is already optional in the Book type
+      // Optional fields
+      classificationNumber: values.classificationNumber || undefined,
+      inventoryNumber: values.inventoryNumber || undefined,
+      coverUrl: values.coverUrl || undefined,
     };
     
     addBook(book);
@@ -257,6 +265,34 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({
                 </FormItem>
               )}
             />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="classificationNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Clasificación</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Número de clasificación" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="inventoryNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Inventario</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Número de inventario" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="genre"

@@ -1,8 +1,10 @@
+
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { Book, Student, mapSupabaseBook, mapSupabaseStudent, mapBookToSupabase, mapStudentToSupabase } from '../types';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { addDays } from 'date-fns';
 
 interface LibraryContextType {
   books: Book[];
@@ -26,6 +28,7 @@ interface LibraryContextType {
   isLoading: boolean;
   deleteStudent: (id: string) => void;
   deleteBook: (id: string) => void;
+  extendReturnDate: (bookId: string, days: number) => void;
 }
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined);
@@ -166,12 +169,14 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
   const updateBookMutation = useMutation({
     mutationFn: async ({ id, book }: { id: string, book: Partial<Book> }) => {
       // Convert book data to Supabase format
-      const supabaseData = {
+      const supabaseData: any = {
         title: book.title,
         author: book.author,
         genre: book.genre,
         code: book.isbn, // Use isbn for code field in database
-        cover_url: book.coverUrl
+        cover_url: book.coverUrl,
+        classification_number: book.classificationNumber,
+        inventory_number: book.inventoryNumber
       };
       
       // Only include defined fields
@@ -218,13 +223,19 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
         throw new Error("Estudiante no encontrado");
       }
       
+      const now = new Date().toISOString();
+      // Default return date is 5 days from now
+      const returnDate = addDays(new Date(), 5).toISOString();
+      
       const { data, error } = await supabase
         .from('books')
         .update({
           available: false,
           borrower_id: studentId,
           borrower_name: student.name,
-          borrower_code: student.code
+          borrower_code: student.code,
+          borrowed_date: now,
+          return_date: returnDate
         })
         .eq('id', bookId)
         .select()
@@ -262,7 +273,9 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
           available: true,
           borrower_id: null,
           borrower_name: null,
-          borrower_code: null
+          borrower_code: null,
+          borrowed_date: null,
+          return_date: null
         })
         .eq('id', bookId)
         .select()
@@ -286,6 +299,49 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
       toast({
         title: "Error",
         description: "No se pudo devolver el libro",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Extend return date mutation
+  const extendReturnDateMutation = useMutation({
+    mutationFn: async ({ bookId, days }: { bookId: string, days: number }) => {
+      const book = getBookById(bookId);
+      if (!book || !book.returnDate) {
+        throw new Error("Libro no encontrado o no prestado");
+      }
+      
+      const currentReturnDate = new Date(book.returnDate);
+      const newReturnDate = addDays(currentReturnDate, days).toISOString();
+      
+      const { data, error } = await supabase
+        .from('books')
+        .update({
+          return_date: newReturnDate
+        })
+        .eq('id', bookId)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error extending return date:', error);
+        throw error;
+      }
+      
+      return mapSupabaseBook(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['books'] });
+      toast({
+        title: "Fecha extendida",
+        description: "La fecha de devolución ha sido extendida correctamente",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "No se pudo extender la fecha de devolución",
         variant: "destructive",
       });
     }
@@ -376,7 +432,9 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
       book =>
         book.title.toLowerCase().includes(lowerQuery) ||
         book.author.toLowerCase().includes(lowerQuery) ||
-        book.isbn.toLowerCase().includes(lowerQuery)
+        book.isbn.toLowerCase().includes(lowerQuery) ||
+        (book.classificationNumber && book.classificationNumber.toLowerCase().includes(lowerQuery)) ||
+        (book.inventoryNumber && book.inventoryNumber.toLowerCase().includes(lowerQuery))
     );
   };
 
@@ -396,6 +454,10 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
 
   const returnBook = (bookId: string): void => {
     returnBookMutation.mutate(bookId);
+  };
+
+  const extendReturnDate = (bookId: string, days: number): void => {
+    extendReturnDateMutation.mutate({ bookId, days });
   };
 
   const getStudentBooks = (studentId: string): Book[] => {
@@ -458,6 +520,7 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
         isLoading,
         deleteStudent,
         deleteBook,
+        extendReturnDate,
       }}
     >
       {children}

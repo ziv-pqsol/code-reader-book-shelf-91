@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
+import { format, isAfter } from 'date-fns';
 
 const BookGrid = ({ books }: { books: any[] }) => {
   const { deleteBook } = useLibrary();
@@ -40,6 +41,14 @@ const BookGrid = ({ books }: { books: any[] }) => {
       return;
     }
     setBookToDelete(book.id);
+  };
+
+  // Check if return date is overdue
+  const isOverdue = (returnDate: string | undefined) => {
+    if (returnDate) {
+      return isAfter(new Date(), new Date(returnDate));
+    }
+    return false;
   };
 
   if (books.length === 0) {
@@ -96,18 +105,37 @@ const BookGrid = ({ books }: { books: any[] }) => {
                     </Badge>
                     <h3 className="font-semibold line-clamp-2">{book.title}</h3>
                     <p className="text-sm text-muted-foreground mb-2">{book.author}</p>
-                    <p className="text-xs text-muted-foreground">ISBN: {book.isbn}</p>
+                    <div className="space-y-1 text-xs">
+                      <p className="text-muted-foreground">ISBN: {book.isbn}</p>
+                      {book.classificationNumber && (
+                        <p className="text-muted-foreground">
+                          Clas: {book.classificationNumber}
+                        </p>
+                      )}
+                      {book.inventoryNumber && (
+                        <p className="text-muted-foreground">
+                          Inv: {book.inventoryNumber}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="mt-auto flex items-center">
+                  <div className="mt-auto flex items-center justify-between">
                     {book.available ? (
                       <Badge variant="outline" className="flex items-center gap-1 bg-green-50 text-green-700 border-green-200">
                         <BookOpen className="h-3 w-3" />
                         Disponible
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="flex items-center gap-1 bg-amber-50 text-amber-700 border-amber-200">
+                      <Badge 
+                        variant="outline" 
+                        className={`flex items-center gap-1 
+                          ${isOverdue(book.returnDate) 
+                            ? 'bg-red-50 text-red-700 border-red-200' 
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                          }`}
+                      >
                         <User className="h-3 w-3" />
-                        Prestado
+                        {isOverdue(book.returnDate) ? 'Vencido' : 'Prestado'}
                       </Badge>
                     )}
                   </div>
@@ -169,6 +197,13 @@ const BooksPage = () => {
       result = books.filter(book => book.available);
     } else if (activeTab === 'borrowed') {
       result = books.filter(book => !book.available);
+    } else if (activeTab === 'overdue') {
+      result = books.filter(book => {
+        if (!book.available && book.returnDate) {
+          return new Date() > new Date(book.returnDate);
+        }
+        return false;
+      });
     }
     
     // Apply search query
@@ -176,6 +211,9 @@ const BooksPage = () => {
       result = searchBooks(searchQuery).filter(book => {
         if (activeTab === 'available') return book.available;
         if (activeTab === 'borrowed') return !book.available;
+        if (activeTab === 'overdue') {
+          return !book.available && book.returnDate && new Date() > new Date(book.returnDate);
+        }
         return true;
       });
     }
@@ -205,7 +243,7 @@ const BooksPage = () => {
         <div className="relative flex-grow">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por título, autor o ISBN..."
+            placeholder="Buscar por título, autor, ISBN, clasificación, inventario..."
             className="pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -222,10 +260,11 @@ const BooksPage = () => {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="all">Todos</TabsTrigger>
           <TabsTrigger value="available">Disponibles</TabsTrigger>
           <TabsTrigger value="borrowed">Prestados</TabsTrigger>
+          <TabsTrigger value="overdue">Vencidos</TabsTrigger>
         </TabsList>
         
         <TabsContent value="all" className="mt-4">
@@ -237,6 +276,10 @@ const BooksPage = () => {
         </TabsContent>
         
         <TabsContent value="borrowed" className="mt-4">
+          <BookGrid books={filteredBooks} />
+        </TabsContent>
+        
+        <TabsContent value="overdue" className="mt-4">
           <BookGrid books={filteredBooks} />
         </TabsContent>
       </Tabs>

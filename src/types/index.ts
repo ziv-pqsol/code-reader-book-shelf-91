@@ -20,6 +20,10 @@ export interface Book {
   borrowerId?: string;
   borrowerName?: string;
   borrowerCode?: string;
+  borrowedDate?: string;
+  returnDate?: string;
+  classificationNumber?: string;
+  inventoryNumber?: string;
 }
 
 export interface Student {
@@ -46,7 +50,11 @@ export function mapSupabaseBook(book: Database['public']['Tables']['books']['Row
     coverUrl: book.cover_url || undefined,
     borrowerId: book.borrower_id || undefined,
     borrowerName: book.borrower_name || undefined,
-    borrowerCode: book.borrower_code || undefined
+    borrowerCode: book.borrower_code || undefined,
+    borrowedDate: book.borrowed_date || undefined,
+    returnDate: book.return_date || undefined,
+    classificationNumber: book.classification_number || undefined,
+    inventoryNumber: book.inventory_number || undefined
   };
 }
 
@@ -71,7 +79,11 @@ export function mapBookToSupabase(book: Omit<Book, 'id'>): Database['public']['T
     cover_url: book.coverUrl || null,
     borrower_id: book.borrowerId || null,
     borrower_name: book.borrowerName || null,
-    borrower_code: book.borrowerCode || null
+    borrower_code: book.borrowerCode || null,
+    borrowed_date: book.borrowedDate || null,
+    return_date: book.returnDate || null,
+    classification_number: book.classificationNumber || null,
+    inventory_number: book.inventoryNumber || null
   };
 }
 

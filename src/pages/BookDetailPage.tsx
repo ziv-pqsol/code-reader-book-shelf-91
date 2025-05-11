@@ -1,10 +1,12 @@
+
+// This file is quite long, so we'll only add the necessary changes for the new fields
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from '@/context/LibraryContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, User, Edit, BookOpen, PlusCircle } from 'lucide-react';
+import { ArrowLeft, User, Edit, BookOpen, PlusCircle, CalendarClock } from 'lucide-react';
 import { genreColors } from '@/data/mockData';
 import {
   Dialog,
@@ -15,13 +17,17 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from "@/hooks/use-toast";
 import EditBookDialog from '@/components/EditBookDialog';
+import ExtendReturnDateDialog from '@/components/ExtendReturnDateDialog';
 import { Input } from '@/components/ui/input';
+import { format, isAfter } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const BookDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { getBookById, returnBook, getStudentById, students = [], borrowBook } = useLibrary();
   const [isEditBookOpen, setIsEditBookOpen] = useState(false);
   const [isAssignStudentOpen, setIsAssignStudentOpen] = useState(false);
+  const [isExtendDateOpen, setIsExtendDateOpen] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -36,6 +42,24 @@ const BookDetailPage = () => {
       setSelectedStudentId('');
     }
   }, [isAssignStudentOpen]);
+
+  // Format date helper function
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return "N/A";
+    try {
+      return format(new Date(dateString), "d 'de' MMMM, yyyy", { locale: es });
+    } catch (e) {
+      return "Fecha inválida";
+    }
+  };
+
+  // Check if return date is overdue
+  const isOverdue = useMemo(() => {
+    if (book?.returnDate) {
+      return isAfter(new Date(), new Date(book.returnDate));
+    }
+    return false;
+  }, [book?.returnDate]);
   
   if (!book) {
     return (
@@ -140,6 +164,18 @@ const BookDetailPage = () => {
                     <p className="text-muted-foreground">Código del Libro</p>
                     <p className="font-medium">{book.isbn}</p>
                   </div>
+                  {book.classificationNumber && (
+                    <div className="flex justify-between">
+                      <p className="text-muted-foreground">Clasificación</p>
+                      <p className="font-medium">{book.classificationNumber}</p>
+                    </div>
+                  )}
+                  {book.inventoryNumber && (
+                    <div className="flex justify-between">
+                      <p className="text-muted-foreground">N° Inventario</p>
+                      <p className="font-medium">{book.inventoryNumber}</p>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <p className="text-muted-foreground">Estado</p>
                     {book.available ? (
@@ -250,18 +286,44 @@ const BookDetailPage = () => {
                         <p className="text-sm text-muted-foreground">Este libro está actualmente prestado a un estudiante</p>
                       </div>
                     </div>
-                    <Button 
-                      variant="destructive"
-                      onClick={() => {
-                        returnBook(book.id);
-                        toast({
-                          title: "Libro devuelto",
-                          description: `${book.title} ha sido devuelto a la biblioteca`,
-                        });
-                      }}
-                    >
-                      Devolver Libro
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant="outline"
+                        onClick={() => setIsExtendDateOpen(true)}
+                      >
+                        <CalendarClock className="h-4 w-4 mr-2" />
+                        Extender plazo
+                      </Button>
+                      <Button 
+                        variant="destructive"
+                        onClick={() => {
+                          returnBook(book.id);
+                          toast({
+                            title: "Libro devuelto",
+                            description: `${book.title} ha sido devuelto a la biblioteca`,
+                          });
+                        }}
+                      >
+                        Devolver Libro
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-6 p-4 rounded-lg border border-amber-200 bg-amber-50">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-amber-800">Prestado desde</p>
+                        <p className="text-sm">{formatDate(book.borrowedDate)}</p>
+                      </div>
+                      <div>
+                        <p className={`text-sm font-medium ${isOverdue ? 'text-red-800' : 'text-amber-800'}`}>
+                          Fecha de devolución {isOverdue ? '(vencida)' : ''}
+                        </p>
+                        <p className={`text-sm ${isOverdue ? 'text-red-600 font-medium' : ''}`}>
+                          {formatDate(book.returnDate)}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                   
                   <Card 
@@ -394,11 +456,19 @@ const BookDetailPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Replace the placeholder EditBookDialog with our new component */}
+      {/* Edit Book Dialog */}
       <EditBookDialog 
         open={isEditBookOpen} 
         onOpenChange={setIsEditBookOpen} 
         book={book}
+      />
+
+      {/* Extend Return Date Dialog */}
+      <ExtendReturnDateDialog
+        open={isExtendDateOpen}
+        onOpenChange={setIsExtendDateOpen}
+        bookId={book.id}
+        currentReturnDate={book.returnDate}
       />
     </div>
   );
