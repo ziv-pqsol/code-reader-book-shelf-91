@@ -1,6 +1,6 @@
 
 import { cn } from '@/lib/utils';
-import { Book, BarChart3, Users } from 'lucide-react';
+import { Book, BarChart3, Users, History } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -67,6 +67,22 @@ const Sidebar = () => {
                 isActive('/books') ? "text-library-primary" : "text-gray-400 group-hover:text-gray-500"
               )} />
               Libros
+            </Link>
+            
+            <Link
+              to="/history"
+              className={cn(
+                "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
+                isActive('/history')
+                  ? "bg-library-primary bg-opacity-10 text-library-primary"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              )}
+            >
+              <History className={cn(
+                "mr-3 h-5 w-5",
+                isActive('/history') ? "text-library-primary" : "text-gray-400 group-hover:text-gray-500"
+              )} />
+              Historial
             </Link>
           </nav>
         </div>

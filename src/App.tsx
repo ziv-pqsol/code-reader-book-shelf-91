@@ -15,6 +15,7 @@ import BookDetailPage from "./pages/BookDetailPage";
 import SearchPage from "./pages/SearchPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import NotFound from "./pages/NotFound";
+import HistoryPage from "./pages/HistoryPage";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/search" element={<Layout><SearchPage /></Layout>} />
             <Route path="/scanner" element={<Navigate to="/search" replace />} />
             <Route path="/search-results" element={<Layout><SearchResultsPage /></Layout>} />
+            <Route path="/history" element={<Layout><HistoryPage /></Layout>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

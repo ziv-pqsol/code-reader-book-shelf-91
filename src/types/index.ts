@@ -38,6 +38,19 @@ export interface User {
   password: string;
 }
 
+// Interface for borrowing history records
+export interface BorrowingRecord {
+  id: string;
+  bookId: string;
+  bookTitle: string;
+  studentId: string;
+  studentName: string;
+  studentCode: string;
+  borrowedDate: string;
+  returnedDate?: string;
+  createdAt: string;
+}
+
 // Helper function to convert Supabase book to our Book interface
 export function mapSupabaseBook(book: Database['public']['Tables']['books']['Row']): Book {
   return {
@@ -65,6 +78,21 @@ export function mapSupabaseStudent(student: Database['public']['Tables']['studen
     name: student.name,
     code: student.code,
     grade: student.grade
+  };
+}
+
+// Helper function to map Supabase borrowing history to our BorrowingRecord interface
+export function mapSupabaseBorrowingRecord(record: Database['public']['Tables']['borrowing_history']['Row']): BorrowingRecord {
+  return {
+    id: record.id,
+    bookId: record.book_id,
+    bookTitle: record.book_title,
+    studentId: record.student_id,
+    studentName: record.student_name,
+    studentCode: record.student_code,
+    borrowedDate: record.borrowed_date,
+    returnedDate: record.returned_date || undefined,
+    createdAt: record.created_at
   };
 }
 

@@ -71,6 +71,57 @@ export type Database = {
           },
         ]
       }
+      borrowing_history: {
+        Row: {
+          book_id: string
+          book_title: string
+          borrowed_date: string
+          created_at: string
+          id: string
+          returned_date: string | null
+          student_code: string
+          student_id: string
+          student_name: string
+        }
+        Insert: {
+          book_id: string
+          book_title: string
+          borrowed_date?: string
+          created_at?: string
+          id?: string
+          returned_date?: string | null
+          student_code: string
+          student_id: string
+          student_name: string
+        }
+        Update: {
+          book_id?: string
+          book_title?: string
+          borrowed_date?: string
+          created_at?: string
+          id?: string
+          returned_date?: string | null
+          student_code?: string
+          student_id?: string
+          student_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "borrowing_history_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "borrowing_history_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           code: string
