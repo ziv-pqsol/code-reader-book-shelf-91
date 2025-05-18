@@ -1,18 +1,21 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Search, Menu, X, QrCode, Trash2 } from 'lucide-react';
+import { Search, Menu, X, QrCode, FileSpreadsheet, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import BetterISBNScanner from '@/components/BetterISBNScanner';
+import ExportDataDialog from '@/components/ExportDataDialog';
 
 const Navbar = () => {
   const { logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showScanner, setShowScanner] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -86,7 +89,16 @@ const Navbar = () => {
             </form>
           </div>
 
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowExportDialog(true)}
+              className="hidden sm:flex items-center gap-2"
+            >
+              <FileSpreadsheet className="h-4 w-4" />
+              <span className="hidden md:inline">Exportar Datos</span>
+            </Button>
             <Button 
               variant="outline" 
               onClick={() => {
@@ -147,6 +159,17 @@ const Navbar = () => {
             >
               Búsqueda
             </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start"
+              onClick={() => { 
+                setShowExportDialog(true);
+                setMobileMenuOpen(false);
+              }}
+            >
+              <FileSpreadsheet className="h-4 w-4 mr-2" />
+              Exportar Datos
+            </Button>
           </div>
         </div>
       )}
@@ -160,6 +183,12 @@ const Navbar = () => {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Export Data Dialog */}
+      <ExportDataDialog 
+        open={showExportDialog} 
+        onOpenChange={setShowExportDialog} 
+      />
     </header>
   );
 };
